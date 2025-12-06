@@ -1,16 +1,48 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
+import { getServerEnv, getPublicEnv } from '@/lib/env'
 
 function getStripe() {
-  return new Stripe(process.env.STRIPE_SECRET_KEY!)
+  return new Stripe(getServerEnv('STRIPE_SECRET_KEY'))
 }
 
 function getSupabaseAdmin() {
   return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    getPublicEnv('NEXT_PUBLIC_SUPABASE_URL'),
+    getServerEnv('SUPABASE_SERVICE_ROLE_KEY')
   )
+}
+
+// Helper to safely extract subscription data
+// In Stripe v20, period dates are on subscription items
+function extractSubscriptionData(subscription: Stripe.Subscription) {
+  const firstItem = subscription.items?.data?.[0]
+  return {
+    priceId: firstItem?.price?.id ?? null,
+    currentPeriodStart: firstItem?.current_period_start
+      ? new Date(firstItem.current_period_start * 1000).toISOString()
+      : null,
+    currentPeriodEnd: firstItem?.current_period_end
+      ? new Date(firstItem.current_period_end * 1000).toISOString()
+      : null,
+    cancelAtPeriodEnd: subscription.cancel_at_period_end ?? false,
+  }
+}
+
+// Map Stripe status to our app status
+function mapSubscriptionStatus(stripeStatus: Stripe.Subscription.Status): string {
+  const statusMap: Record<string, string> = {
+    active: 'active',
+    past_due: 'past_due',
+    canceled: 'canceled',
+    unpaid: 'past_due',
+    incomplete: 'inactive',
+    incomplete_expired: 'canceled',
+    trialing: 'active',
+    paused: 'inactive',
+  }
+  return statusMap[stripeStatus] ?? 'inactive'
 }
 
 export async function POST(request: Request) {
@@ -30,7 +62,7 @@ export async function POST(request: Request) {
     event = stripe.webhooks.constructEvent(
       body,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      getServerEnv('STRIPE_WEBHOOK_SECRET')
     )
   } catch (err) {
     console.error('Webhook signature verification failed:', err)
@@ -66,9 +98,8 @@ export async function POST(request: Request) {
         }
 
         // Fetch subscription details
-        const subscriptionResponse = await stripe.subscriptions.retrieve(subscriptionId)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const sub = subscriptionResponse as any
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId)
+        const subData = extractSubscriptionData(subscription)
 
         // Upsert subscription
         const { error: upsertError } = await supabase
@@ -79,14 +110,10 @@ export async function POST(request: Request) {
               stripe_customer_id: customerId,
               stripe_subscription_id: subscriptionId,
               status: 'active',
-              price_id: sub.items?.data?.[0]?.price?.id,
-              current_period_start: sub.current_period_start
-                ? new Date(sub.current_period_start * 1000).toISOString()
-                : null,
-              current_period_end: sub.current_period_end
-                ? new Date(sub.current_period_end * 1000).toISOString()
-                : null,
-              cancel_at_period_end: sub.cancel_at_period_end ?? false,
+              price_id: subData.priceId,
+              current_period_start: subData.currentPeriodStart,
+              current_period_end: subData.currentPeriodEnd,
+              cancel_at_period_end: subData.cancelAtPeriodEnd,
             },
             { onConflict: 'user_id' }
           )
@@ -101,30 +128,18 @@ export async function POST(request: Request) {
       }
 
       case 'customer.subscription.updated': {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const subscription = event.data.object as any
-
-        const status =
-          subscription.status === 'active'
-            ? 'active'
-            : subscription.status === 'past_due'
-            ? 'past_due'
-            : subscription.status === 'canceled'
-            ? 'canceled'
-            : 'inactive'
+        const subscription = event.data.object as Stripe.Subscription
+        const subData = extractSubscriptionData(subscription)
+        const status = mapSubscriptionStatus(subscription.status)
 
         const { error } = await supabase
           .from('subscriptions')
           .update({
             status,
-            price_id: subscription.items?.data?.[0]?.price?.id,
-            current_period_start: subscription.current_period_start
-              ? new Date(subscription.current_period_start * 1000).toISOString()
-              : null,
-            current_period_end: subscription.current_period_end
-              ? new Date(subscription.current_period_end * 1000).toISOString()
-              : null,
-            cancel_at_period_end: subscription.cancel_at_period_end ?? false,
+            price_id: subData.priceId,
+            current_period_start: subData.currentPeriodStart,
+            current_period_end: subData.currentPeriodEnd,
+            cancel_at_period_end: subData.cancelAtPeriodEnd,
           })
           .eq('stripe_subscription_id', subscription.id)
 
@@ -138,8 +153,7 @@ export async function POST(request: Request) {
       }
 
       case 'customer.subscription.deleted': {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const subscription = event.data.object as any
+        const subscription = event.data.object as Stripe.Subscription
 
         const { error } = await supabase
           .from('subscriptions')
@@ -156,9 +170,12 @@ export async function POST(request: Request) {
       }
 
       case 'invoice.payment_failed': {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const invoice = event.data.object as any
-        const subscriptionId = invoice.subscription as string
+        const invoice = event.data.object as Stripe.Invoice
+        // In Stripe v20, subscription is accessed via parent.subscription_details
+        const subDetails = invoice.parent?.subscription_details
+        const subscriptionId = typeof subDetails?.subscription === 'string'
+          ? subDetails.subscription
+          : subDetails?.subscription?.id
 
         if (subscriptionId) {
           const { error } = await supabase

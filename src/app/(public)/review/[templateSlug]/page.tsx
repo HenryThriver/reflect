@@ -9,6 +9,7 @@ import {
   saveGuestResponse,
   setQuestionIndex,
   completeGuestReview,
+  flushStorage,
 } from '@/lib/guest-storage'
 import { TemplateIntro } from '@/components/templates/template-intro'
 import { TypeformQuestion } from '@/components/review/typeform-question'
@@ -64,8 +65,9 @@ export default function ReviewPage({
       setCurrentIndex(newIndex)
       setQuestionIndex(templateSlug, newIndex)
     } else {
-      // Complete the review
+      // Complete the review and flush storage before navigation
       completeGuestReview(templateSlug)
+      flushStorage()
       router.push(`/review/${templateSlug}/complete`)
     }
   }, [template, currentIndex, templateSlug, router])
