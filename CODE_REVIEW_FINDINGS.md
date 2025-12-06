@@ -514,16 +514,16 @@ After fixing P1-P3 issues, a verification review was run to confirm fixes and id
 ### VR-P2: High Priority Issues
 
 #### VR-P2-1: Duplicate Redirect Validation Logic
-- **Status:** [ ] Not Started
+- **Status:** [x] ✅ Fixed (2025-12-06)
 - **Files:** `src/app/(auth)/login/page.tsx`, `src/app/(auth)/signup/page.tsx`, `src/app/auth/callback/route.ts`
 - **Issue:** Same `isValidRedirect` function duplicated in 3 files (~30 lines).
-- **Fix:** Extract to `src/lib/redirect-validation.ts` with shared `ALLOWED_REDIRECTS` constant.
+- **Fix:** Created `src/lib/redirect-validation.ts` with shared `ALLOWED_REDIRECTS`, `isValidRedirect`, and `getSafeRedirect` functions. All 3 files now import from shared utility.
 
 #### VR-P2-2: Duplicate ReviewWithProgress Type
-- **Status:** [ ] Not Started
+- **Status:** [x] ✅ Fixed (2025-12-06)
 - **Files:** `src/components/dashboard/in-progress-section.tsx`, `src/components/dashboard/completed-section.tsx`
 - **Issue:** Same interface defined in 2 files (~12 lines).
-- **Fix:** Extract to `src/lib/database.types.ts`.
+- **Fix:** Extracted `ReviewWithProgress` type to `src/lib/database.types.ts`. Both dashboard components now import from centralized location.
 
 #### VR-P2-3: Missing Rate Limiting
 - **Status:** [ ] Not Started
@@ -542,28 +542,28 @@ After fixing P1-P3 issues, a verification review was run to confirm fixes and id
 ### VR-P3: Nice-to-Have Issues
 
 #### VR-P3-1: Duplicate Loading State JSX
-- **Status:** [ ] Not Started
+- **Status:** [x] ✅ Fixed (2025-12-06)
 - **Files:** 4 files with identical "Loading..." screens
 - **Issue:** ~15 lines duplicated across review-flow, complete page, login, signup.
-- **Fix:** Create `src/components/ui/loading-state.tsx`.
+- **Fix:** Created `src/components/ui/loading-state.tsx` with spinner and configurable message. All 4 files now use shared component.
 
 #### VR-P3-2: Duplicate Divider Component
-- **Status:** [ ] Not Started
+- **Status:** [x] ✅ Fixed (2025-12-06)
 - **Files:** login, signup, complete pages
 - **Issue:** "Or continue with" divider duplicated 3 times (~30 lines).
-- **Fix:** Create `src/components/ui/divider-with-text.tsx`.
+- **Fix:** Created `src/components/ui/divider-with-text.tsx`. All 3 files now use shared component.
 
-#### VR-P3-3: Unnecessary isClient Check
-- **Status:** [ ] Not Started
+#### VR-P3-3: isClient Check for localStorage Hydration
+- **Status:** [x] ✅ Documented (2025-12-06)
 - **File:** `src/components/review/review-flow.tsx`
 - **Issue:** Complex `isClient` state management that adds cognitive overhead.
-- **Fix:** Remove `isClient` state, rely on useEffect to populate state after mount.
+- **Fix:** Kept `isClient` pattern - it IS required because localStorage access in useEffect would cause hydration mismatch. Added comment explaining necessity. Now uses shared `LoadingState` component.
 
 #### VR-P3-4: Console Logging in Webhook
-- **Status:** [ ] Not Started
+- **Status:** [x] ✅ Fixed (2025-12-06)
 - **File:** `src/app/api/stripe/webhook/route.ts`
 - **Issue:** Multiple console.log/error statements may log sensitive data (user IDs, emails).
-- **Fix:** Sanitize logs or use structured logging with appropriate levels.
+- **Fix:** Added `sanitizeEmail` helper that masks user emails (shows only domain: `***@domain.com`). User IDs and Stripe IDs are safe to log as internal identifiers.
 
 #### VR-P3-5: No Webhook Events Cleanup Policy
 - **Status:** [ ] Not Started
