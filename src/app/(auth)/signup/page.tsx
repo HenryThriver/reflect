@@ -10,10 +10,26 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertCircle, Loader2, CheckCircle } from 'lucide-react'
 
+const ALLOWED_REDIRECTS = ['/dashboard', '/vault', '/templates', '/pricing', '/review', '/account']
+
+function isValidRedirect(path: string): boolean {
+  // Reject absolute URLs
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('//')) {
+    return false
+  }
+  // Reject path traversal
+  if (path.includes('..')) {
+    return false
+  }
+  // Must start with allowed prefix
+  return ALLOWED_REDIRECTS.some((allowed) => path.startsWith(allowed))
+}
+
 function SignupForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirectTo') || '/dashboard'
+  const rawRedirect = searchParams.get('redirectTo') || '/dashboard'
+  const redirectTo = isValidRedirect(rawRedirect) ? rawRedirect : '/dashboard'
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

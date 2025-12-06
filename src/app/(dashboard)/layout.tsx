@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import { LogOut, FileText, Settings, CreditCard } from 'lucide-react'
+import { signOut } from '@/app/actions/auth'
+import { MigrateGuestData } from '@/components/auth/migrate-guest-data'
 
 export default async function DashboardLayout({
   children,
@@ -18,6 +20,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-background">
+      <MigrateGuestData userId={user.id} />
       {/* Header */}
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -43,7 +46,7 @@ export default async function DashboardLayout({
                 Settings
               </span>
             </Link>
-            <form action="/auth/signout" method="post">
+            <form action={signOut}>
               <Button variant="ghost" size="sm" type="submit">
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign out

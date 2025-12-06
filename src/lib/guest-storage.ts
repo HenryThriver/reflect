@@ -33,10 +33,41 @@ function getStorage(): GuestStorage {
 
     // Check size before parsing
     if (stored.length > MAX_STORAGE_SIZE) {
-      console.error('Guest storage quota exceeded, clearing storage')
-      localStorage.removeItem(STORAGE_KEY)
-      storageCache = { reviews: {} }
-      return storageCache
+      console.warn('Guest storage approaching quota limit')
+      // Try to parse and remove oldest incomplete review
+      try {
+        const data = JSON.parse(stored) as GuestStorage
+        const reviews = Object.entries(data.reviews)
+
+        // Sort by startedAt, oldest first
+        reviews.sort((a, b) =>
+          new Date(a[1].startedAt).getTime() - new Date(b[1].startedAt).getTime()
+        )
+
+        // Remove oldest incomplete review (keep completed ones if possible)
+        const oldestIncomplete = reviews.find(([_, r]) => !r.completedAt)
+        if (oldestIncomplete) {
+          console.warn(`Removing oldest incomplete review: ${oldestIncomplete[0]}`)
+          delete data.reviews[oldestIncomplete[0]]
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+          storageCache = data
+          return storageCache
+        }
+
+        // If all are complete, remove the oldest one
+        if (reviews.length > 0) {
+          console.warn(`Removing oldest review: ${reviews[0][0]}`)
+          delete data.reviews[reviews[0][0]]
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+          storageCache = data
+          return storageCache
+        }
+      } catch {
+        // If parsing fails, clear and start fresh
+        localStorage.removeItem(STORAGE_KEY)
+        storageCache = { reviews: {} }
+        return storageCache
+      }
     }
 
     storageCache = JSON.parse(stored)
@@ -60,9 +91,16 @@ function setStorage(data: GuestStorage): void {
 
   pendingWrite = setTimeout(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+      const serialized = JSON.stringify(data)
+      localStorage.setItem(STORAGE_KEY, serialized)
     } catch (error) {
       console.error('Failed to save guest storage:', error)
+      // Emit custom event for UI to handle
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('guest-storage-error', {
+          detail: { error: 'quota_exceeded' }
+        }))
+      }
     }
     pendingWrite = null
   }, DEBOUNCE_MS)
@@ -70,9 +108,12 @@ function setStorage(data: GuestStorage): void {
 
 // Force immediate write (call before navigation)
 export function flushStorage(): void {
-  if (pendingWrite && storageCache) {
+  if (pendingWrite) {
     clearTimeout(pendingWrite)
     pendingWrite = null
+  }
+
+  if (storageCache && typeof window !== 'undefined') {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(storageCache))
     } catch (error) {
@@ -138,5 +179,25 @@ export function getAllGuestReviews(): Record<string, GuestReview> {
 }
 
 export function clearAllGuestReviews(): void {
-  localStorage.removeItem(STORAGE_KEY)
+  const storage = getStorage()
+  storage.reviews = {}
+  setStorage(storage)
+  flushStorage()
+}
+
+// Auto-flush on page visibility change or unload
+if (typeof window !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      flushStorage()
+    }
+  })
+
+  window.addEventListener('beforeunload', () => {
+    flushStorage()
+  })
+
+  window.addEventListener('pagehide', () => {
+    flushStorage()
+  })
 }

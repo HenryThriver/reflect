@@ -70,6 +70,18 @@ export async function POST(request: Request) {
   }
 
   try {
+    // Check if already processed (idempotency)
+    const { data: existingEvent } = await supabase
+      .from('webhook_events')
+      .select('id')
+      .eq('stripe_event_id', event.id)
+      .single()
+
+    if (existingEvent) {
+      console.log(`Event ${event.id} already processed, skipping`)
+      return NextResponse.json({ received: true, skipped: 'duplicate' })
+    }
+
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
@@ -82,15 +94,30 @@ export async function POST(request: Request) {
           break
         }
 
-        // Find user by email
-        const { data: users, error: userError } = await supabase.auth.admin.listUsers()
+        // Find user by email with pagination to avoid loading all users
+        let user = null
+        let page = 1
+        const perPage = 50
 
-        if (userError) {
-          console.error('Error listing users:', userError)
-          break
+        while (!user) {
+          const { data: usersPage, error: userError } = await supabase.auth.admin.listUsers({
+            page,
+            perPage
+          })
+
+          if (userError) {
+            console.error('Error listing users:', userError)
+            break
+          }
+
+          if (!usersPage.users.length) break
+
+          user = usersPage.users.find((u) => u.email === customerEmail)
+          if (user) break
+
+          page++
+          if (page > 100) break // Safety limit
         }
-
-        const user = users.users.find((u) => u.email === customerEmail)
 
         if (!user) {
           console.log(`No user found for email: ${customerEmail}`)
@@ -124,6 +151,11 @@ export async function POST(request: Request) {
           console.log(`Subscription created/updated for user: ${user.id}`)
         }
 
+        // Record processed event
+        await supabase
+          .from('webhook_events')
+          .insert({ stripe_event_id: event.id, event_type: event.type })
+
         break
       }
 
@@ -149,6 +181,11 @@ export async function POST(request: Request) {
           console.log(`Subscription updated: ${subscription.id}`)
         }
 
+        // Record processed event
+        await supabase
+          .from('webhook_events')
+          .insert({ stripe_event_id: event.id, event_type: event.type })
+
         break
       }
 
@@ -165,6 +202,11 @@ export async function POST(request: Request) {
         } else {
           console.log(`Subscription canceled: ${subscription.id}`)
         }
+
+        // Record processed event
+        await supabase
+          .from('webhook_events')
+          .insert({ stripe_event_id: event.id, event_type: event.type })
 
         break
       }
@@ -187,6 +229,11 @@ export async function POST(request: Request) {
             console.error('Error updating subscription to past_due:', error)
           }
         }
+
+        // Record processed event
+        await supabase
+          .from('webhook_events')
+          .insert({ stripe_event_id: event.id, event_type: event.type })
 
         break
       }
