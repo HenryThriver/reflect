@@ -4,7 +4,6 @@ export interface ReviewTemplate {
   creator: Creator
   intro: TemplateIntro
   questions: Question[]
-  theme?: TemplateTheme
 }
 
 export interface Creator {
@@ -22,7 +21,7 @@ export interface TemplateIntro {
   imageUrl?: string
 }
 
-export type QuestionType = 'textarea' | 'text' | 'select' | 'scale' | 'multiselect'
+export type QuestionType = 'textarea' | 'text' | 'select' | 'scale'
 
 export interface Question {
   id: string
@@ -35,10 +34,4 @@ export interface Question {
   minValue?: number
   maxValue?: number
   section?: string
-}
-
-export interface TemplateTheme {
-  primaryColor?: string
-  backgroundColor?: string
-  fontFamily?: string
 }
