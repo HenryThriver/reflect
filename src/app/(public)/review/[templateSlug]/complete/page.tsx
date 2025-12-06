@@ -6,6 +6,8 @@ import { getTemplate } from '@/lib/templates'
 import { getGuestReview, clearGuestReview } from '@/lib/guest-storage'
 import { generateMarkdown, downloadMarkdown } from '@/lib/markdown/generator'
 import { Button } from '@/components/ui/button'
+import { LoadingState } from '@/components/ui/loading-state'
+import { DividerWithText } from '@/components/ui/divider-with-text'
 import { Download, Lock, Check, ArrowLeft, Sparkles } from 'lucide-react'
 
 export default function CompletionPage({
@@ -51,11 +53,7 @@ export default function CompletionPage({
   }
 
   if (!isClient) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    )
+    return <LoadingState />
   }
 
   const responses = guestReview?.responses ?? {}
@@ -100,17 +98,7 @@ export default function CompletionPage({
             )}
           </Button>
 
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                or
-              </span>
-            </div>
-          </div>
+          <DividerWithText className="my-4">or</DividerWithText>
 
           {/* Upgrade CTA */}
           <Button asChild size="lg" className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">

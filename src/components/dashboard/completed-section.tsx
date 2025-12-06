@@ -8,15 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { CheckCircle2, Lock } from 'lucide-react'
-import { AnnualReview } from '@/lib/database.types'
-import { ReviewTemplate } from '@/lib/templates'
-
-interface ReviewWithProgress extends AnnualReview {
-  template: ReviewTemplate | undefined
-  progress: number
-  totalQuestions: number
-  answeredQuestions: number
-}
+import { ReviewWithProgress } from '@/lib/database.types'
 
 interface CompletedSectionProps {
   reviews: ReviewWithProgress[]

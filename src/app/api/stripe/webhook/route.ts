@@ -45,6 +45,13 @@ function mapSubscriptionStatus(stripeStatus: Stripe.Subscription.Status): string
   return statusMap[stripeStatus] ?? 'inactive'
 }
 
+// Sanitize email for logging (show only domain)
+function sanitizeEmail(email: string): string {
+  const parts = email.split('@')
+  if (parts.length !== 2) return '[invalid]'
+  return `***@${parts[1]}`
+}
+
 export async function POST(request: Request) {
   const body = await request.text()
   const sig = request.headers.get('stripe-signature')
@@ -128,7 +135,7 @@ export async function POST(request: Request) {
         }
 
         if (!user) {
-          console.log(`No user found for email: ${customerEmail}`)
+          console.log(`No user found for email: ${sanitizeEmail(customerEmail)}`)
           break
         }
 

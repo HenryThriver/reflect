@@ -4,36 +4,23 @@ import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { getSafeRedirect } from '@/lib/redirect-validation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { CheckCircle } from 'lucide-react'
 import { LoadingButton } from '@/components/ui/loading-button'
+import { LoadingState } from '@/components/ui/loading-state'
 import { ErrorAlert } from '@/components/ui/error-alert'
+import { DividerWithText } from '@/components/ui/divider-with-text'
 import { GoogleIcon } from '@/components/icons/google-icon'
 import { useOAuthLogin } from '@/hooks/use-oauth-login'
-
-const ALLOWED_REDIRECTS = ['/dashboard', '/vault', '/templates', '/pricing', '/review', '/account']
-
-function isValidRedirect(path: string): boolean {
-  // Reject absolute URLs
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('//')) {
-    return false
-  }
-  // Reject path traversal
-  if (path.includes('..')) {
-    return false
-  }
-  // Must start with allowed prefix
-  return ALLOWED_REDIRECTS.some((allowed) => path.startsWith(allowed))
-}
 
 function SignupForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const rawRedirect = searchParams.get('redirectTo') || '/dashboard'
-  const redirectTo = isValidRedirect(rawRedirect) ? rawRedirect : '/dashboard'
+  const redirectTo = getSafeRedirect(searchParams.get('redirectTo'))
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -156,16 +143,7 @@ function SignupForm() {
             </LoadingButton>
           </form>
 
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
-              </span>
-            </div>
-          </div>
+          <DividerWithText>Or continue with</DividerWithText>
 
           <LoadingButton
             variant="outline"
@@ -195,11 +173,7 @@ function SignupForm() {
 
 export default function SignupPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    }>
+    <Suspense fallback={<LoadingState />}>
       <SignupForm />
     </Suspense>
   )

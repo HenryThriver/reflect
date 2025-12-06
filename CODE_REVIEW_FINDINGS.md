@@ -16,6 +16,14 @@
 | P2 HIGH | 12 | ✅ All Fixed |
 | P3 MEDIUM | 15 | ✅ All Fixed |
 
+### Verification Review (2025-12-06)
+
+| Severity | Count | Status |
+|----------|-------|--------|
+| P1 CRITICAL | 2 | ✅ Fixed |
+| P2 HIGH | 4 | In Progress |
+| P3 MEDIUM | 5 | In Progress |
+
 ---
 
 ## Lessons Learned & Patterns
@@ -480,3 +488,85 @@ const { data: user } = await supabase.auth.admin.getUserById(userId)
 - pattern-recognition-specialist
 - code-simplicity-reviewer
 - data-integrity-guardian
+
+---
+
+## Verification Review Findings (2025-12-06)
+
+After fixing P1-P3 issues, a verification review was run to confirm fixes and identify any new issues.
+
+### VR-P1: Critical Issues (FIXED)
+
+#### VR-P1-1: Auth Callback Redirect Validation Incomplete
+- **Status:** [x] ✅ Fixed (2025-12-06)
+- **File:** `src/app/auth/callback/route.ts`
+- **Issue:** Callback validation was simpler than login/signup - didn't check for `..` path traversal or absolute URLs.
+- **Fix:** Updated to match login/signup validation (reject absolute URLs, path traversal).
+
+#### VR-P1-2: Webhook Idempotency Race Condition
+- **Status:** [x] ✅ Fixed (2025-12-06)
+- **File:** `src/app/api/stripe/webhook/route.ts`
+- **Issue:** SELECT-then-INSERT pattern allows duplicate processing if two webhooks arrive simultaneously.
+- **Fix:** Changed to atomic INSERT-first pattern, check for UNIQUE constraint violation (code 23505).
+
+---
+
+### VR-P2: High Priority Issues
+
+#### VR-P2-1: Duplicate Redirect Validation Logic
+- **Status:** [ ] Not Started
+- **Files:** `src/app/(auth)/login/page.tsx`, `src/app/(auth)/signup/page.tsx`, `src/app/auth/callback/route.ts`
+- **Issue:** Same `isValidRedirect` function duplicated in 3 files (~30 lines).
+- **Fix:** Extract to `src/lib/redirect-validation.ts` with shared `ALLOWED_REDIRECTS` constant.
+
+#### VR-P2-2: Duplicate ReviewWithProgress Type
+- **Status:** [ ] Not Started
+- **Files:** `src/components/dashboard/in-progress-section.tsx`, `src/components/dashboard/completed-section.tsx`
+- **Issue:** Same interface defined in 2 files (~12 lines).
+- **Fix:** Extract to `src/lib/database.types.ts`.
+
+#### VR-P2-3: Missing Rate Limiting
+- **Status:** [ ] Not Started
+- **Files:** Auth endpoints, webhook route
+- **Issue:** No brute force protection on authentication endpoints.
+- **Fix:** Consider Vercel rate limiting or upstash/ratelimit package. (May defer to production setup)
+
+#### VR-P2-4: No Transaction Wrapping in Webhook
+- **Status:** [ ] Not Started
+- **File:** `src/app/api/stripe/webhook/route.ts`
+- **Issue:** If subscription upsert succeeds but event already recorded, partial state possible on retry.
+- **Fix:** Current atomic idempotency mitigates most issues. Document as known limitation or use RPC function.
+
+---
+
+### VR-P3: Nice-to-Have Issues
+
+#### VR-P3-1: Duplicate Loading State JSX
+- **Status:** [ ] Not Started
+- **Files:** 4 files with identical "Loading..." screens
+- **Issue:** ~15 lines duplicated across review-flow, complete page, login, signup.
+- **Fix:** Create `src/components/ui/loading-state.tsx`.
+
+#### VR-P3-2: Duplicate Divider Component
+- **Status:** [ ] Not Started
+- **Files:** login, signup, complete pages
+- **Issue:** "Or continue with" divider duplicated 3 times (~30 lines).
+- **Fix:** Create `src/components/ui/divider-with-text.tsx`.
+
+#### VR-P3-3: Unnecessary isClient Check
+- **Status:** [ ] Not Started
+- **File:** `src/components/review/review-flow.tsx`
+- **Issue:** Complex `isClient` state management that adds cognitive overhead.
+- **Fix:** Remove `isClient` state, rely on useEffect to populate state after mount.
+
+#### VR-P3-4: Console Logging in Webhook
+- **Status:** [ ] Not Started
+- **File:** `src/app/api/stripe/webhook/route.ts`
+- **Issue:** Multiple console.log/error statements may log sensitive data (user IDs, emails).
+- **Fix:** Sanitize logs or use structured logging with appropriate levels.
+
+#### VR-P3-5: No Webhook Events Cleanup Policy
+- **Status:** [ ] Not Started
+- **File:** `supabase/migrations/002_webhook_events.sql`
+- **Issue:** Table will grow indefinitely with no TTL.
+- **Fix:** Add scheduled cleanup job or document manual cleanup process.

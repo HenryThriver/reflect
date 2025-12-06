@@ -25,3 +25,11 @@ export interface AnnualReview {
   created_at: string
   updated_at: string
 }
+
+// Extended type for dashboard views with computed progress fields
+export interface ReviewWithProgress extends AnnualReview {
+  template: import('@/lib/templates').ReviewTemplate | undefined
+  progress: number
+  totalQuestions: number
+  answeredQuestions: number
+}

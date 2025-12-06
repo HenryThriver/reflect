@@ -9,15 +9,7 @@ import {
 } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Clock } from 'lucide-react'
-import { AnnualReview } from '@/lib/database.types'
-import { ReviewTemplate } from '@/lib/templates'
-
-interface ReviewWithProgress extends AnnualReview {
-  template: ReviewTemplate | undefined
-  progress: number
-  totalQuestions: number
-  answeredQuestions: number
-}
+import { ReviewWithProgress } from '@/lib/database.types'
 
 interface InProgressSectionProps {
   reviews: ReviewWithProgress[]

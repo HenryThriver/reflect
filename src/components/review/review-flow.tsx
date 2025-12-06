@@ -14,6 +14,7 @@ import {
 import { TemplateIntro } from '@/components/templates/template-intro'
 import { TypeformQuestion } from '@/components/review/typeform-question'
 import { ReviewProgressBar } from '@/components/review/progress-bar'
+import { LoadingState } from '@/components/ui/loading-state'
 
 interface ReviewFlowProps {
   template: ReviewTemplate
@@ -133,13 +134,9 @@ export function ReviewFlow({ template }: ReviewFlowProps) {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [showIntro, currentIndex, template, responses, handleNext, handlePrevious])
 
-  // Don't render anything until client-side
+  // Don't render anything until client-side (localStorage access requires client)
   if (!isClient) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    )
+    return <LoadingState />
   }
 
   if (showIntro) {
