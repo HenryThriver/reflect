@@ -1,5 +1,5 @@
 // Environment variable validation
-// Import this early in your app to fail fast on missing env vars
+// Provides runtime environment variable access with fail-fast behavior
 
 const requiredServerEnvVars = [
   'SUPABASE_SERVICE_ROLE_KEY',
@@ -15,6 +15,8 @@ const requiredPublicEnvVars = [
 type ServerEnvVar = (typeof requiredServerEnvVars)[number]
 type PublicEnvVar = (typeof requiredPublicEnvVars)[number]
 
+// Available for manual validation at app startup if needed
+// Currently, validation happens lazily via getServerEnv() and getPublicEnv()
 export function validateServerEnv(): void {
   const missing: string[] = []
 

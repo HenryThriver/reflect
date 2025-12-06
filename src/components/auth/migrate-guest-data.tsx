@@ -5,17 +5,17 @@ import { migrateGuestReviews } from '@/lib/migrate-guest-data'
 import { getAllGuestReviews } from '@/lib/guest-storage'
 
 export function MigrateGuestData({ userId }: { userId: string }) {
-  const [migrating, setMigrating] = useState(false)
-  const [done, setDone] = useState(false)
+  const [isMigrating, setIsMigrating] = useState(false)
+  const [isDone, setIsDone] = useState(false)
 
   useEffect(() => {
     const reviews = getAllGuestReviews()
     if (Object.keys(reviews).length === 0) {
-      setDone(true)
+      setIsDone(true)
       return
     }
 
-    setMigrating(true)
+    setIsMigrating(true)
     migrateGuestReviews(userId)
       .then(({ migrated, errors }) => {
         if (migrated > 0) {
@@ -26,12 +26,12 @@ export function MigrateGuestData({ userId }: { userId: string }) {
         }
       })
       .finally(() => {
-        setMigrating(false)
-        setDone(true)
+        setIsMigrating(false)
+        setIsDone(true)
       })
   }, [userId])
 
-  if (done || !migrating) return null
+  if (isDone || !isMigrating) return null
 
   return (
     <div className="fixed inset-0 bg-background/80 flex items-center justify-center z-50">

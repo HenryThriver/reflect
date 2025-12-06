@@ -1,6 +1,7 @@
 'use client'
 
 import { Progress } from '@/components/ui/progress'
+import { calculateProgress } from '@/lib/utils'
 
 interface ReviewProgressBarProps {
   current: number
@@ -13,7 +14,7 @@ export function ReviewProgressBar({
   total,
   templateName,
 }: ReviewProgressBarProps) {
-  const percentage = Math.round((current / total) * 100)
+  const percentage = calculateProgress(current, total)
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">

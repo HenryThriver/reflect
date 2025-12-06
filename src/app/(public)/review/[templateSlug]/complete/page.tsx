@@ -17,7 +17,7 @@ export default function CompletionPage({
   const template = getTemplate(templateSlug)
   const [guestReview, setGuestReview] = useState<ReturnType<typeof getGuestReview>>(null)
   const [isClient, setIsClient] = useState(false)
-  const [downloaded, setDownloaded] = useState(false)
+  const [isDownloaded, setIsDownloaded] = useState(false)
 
   useEffect(() => {
     setIsClient(true)
@@ -34,7 +34,7 @@ export default function CompletionPage({
     const year = new Date().getFullYear()
     const filename = `${template.slug}-${year}.md`
     downloadMarkdown(markdown, filename)
-    setDownloaded(true)
+    setIsDownloaded(true)
   }
 
   const handleStartNew = () => {
@@ -84,10 +84,10 @@ export default function CompletionPage({
           <Button
             onClick={handleDownload}
             size="lg"
-            variant={downloaded ? 'outline' : 'default'}
+            variant={isDownloaded ? 'outline' : 'default'}
             className="w-full"
           >
-            {downloaded ? (
+            {isDownloaded ? (
               <>
                 <Check className="w-5 h-5 mr-2" />
                 Downloaded!

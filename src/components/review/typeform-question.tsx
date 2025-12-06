@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Question } from '@/lib/templates/types'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
@@ -33,12 +33,7 @@ export function TypeformQuestion({
   questionNumber,
   totalQuestions,
 }: TypeformQuestionProps) {
-  const [localValue, setLocalValue] = useState(value)
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null)
-
-  useEffect(() => {
-    setLocalValue(value)
-  }, [value])
 
   useEffect(() => {
     // Focus input on mount
@@ -48,23 +43,7 @@ export function TypeformQuestion({
     return () => clearTimeout(timer)
   }, [question.id])
 
-  const handleChange = (newValue: string) => {
-    setLocalValue(newValue)
-    onChange(newValue)
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey && question.type !== 'textarea') {
-      e.preventDefault()
-      onNext()
-    }
-    if (e.key === 'Enter' && e.metaKey && question.type === 'textarea') {
-      e.preventDefault()
-      onNext()
-    }
-  }
-
-  const canProceed = !question.required || localValue.trim().length > 0
+  const canProceed = !question.required || value.trim().length > 0
 
   return (
     <div className="min-h-screen flex flex-col justify-center px-6 py-12 max-w-3xl mx-auto">
@@ -100,9 +79,8 @@ export function TypeformQuestion({
         {question.type === 'textarea' && (
           <Textarea
             ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-            value={localValue}
-            onChange={(e) => handleChange(e.target.value)}
-            onKeyDown={handleKeyDown}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
             placeholder={question.placeholder}
             className="min-h-[200px] text-lg resize-none border-0 border-b-2 rounded-none focus-visible:ring-0 focus-visible:border-primary px-0"
           />
@@ -111,9 +89,8 @@ export function TypeformQuestion({
         {question.type === 'text' && (
           <Input
             ref={inputRef as React.RefObject<HTMLInputElement>}
-            value={localValue}
-            onChange={(e) => handleChange(e.target.value)}
-            onKeyDown={handleKeyDown}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
             placeholder={question.placeholder}
             className="text-lg border-0 border-b-2 rounded-none focus-visible:ring-0 focus-visible:border-primary px-0 h-auto py-2"
           />
@@ -121,8 +98,8 @@ export function TypeformQuestion({
 
         {question.type === 'select' && question.options && (
           <RadioGroup
-            value={localValue}
-            onValueChange={handleChange}
+            value={value}
+            onValueChange={onChange}
             className="space-y-3"
           >
             {question.options.map((option, index) => (
@@ -130,11 +107,11 @@ export function TypeformQuestion({
                 key={option}
                 className={cn(
                   'flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-colors',
-                  localValue === option
+                  value === option
                     ? 'border-primary bg-primary/5'
                     : 'border-border hover:border-primary/50'
                 )}
-                onClick={() => handleChange(option)}
+                onClick={() => onChange(option)}
               >
                 <RadioGroupItem value={option} id={`option-${index}`} />
                 <Label
@@ -159,10 +136,10 @@ export function TypeformQuestion({
             ).map((num) => (
               <button
                 key={num}
-                onClick={() => handleChange(String(num))}
+                onClick={() => onChange(String(num))}
                 className={cn(
                   'w-12 h-12 rounded-lg border-2 text-lg font-medium transition-colors',
-                  localValue === String(num)
+                  value === String(num)
                     ? 'border-primary bg-primary text-primary-foreground'
                     : 'border-border hover:border-primary/50'
                 )}
