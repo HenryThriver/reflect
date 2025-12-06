@@ -70,16 +70,21 @@ export async function POST(request: Request) {
   }
 
   try {
-    // Check if already processed (idempotency)
-    const { data: existingEvent } = await supabase
+    // Atomic idempotency check: INSERT first, if it fails due to UNIQUE constraint,
+    // we know it's a duplicate. This prevents race conditions with concurrent webhooks.
+    const { error: idempotencyError } = await supabase
       .from('webhook_events')
-      .select('id')
-      .eq('stripe_event_id', event.id)
-      .single()
+      .insert({ stripe_event_id: event.id, event_type: event.type })
 
-    if (existingEvent) {
-      console.log(`Event ${event.id} already processed, skipping`)
-      return NextResponse.json({ received: true, skipped: 'duplicate' })
+    if (idempotencyError) {
+      // Check if it's a unique constraint violation (duplicate event)
+      if (idempotencyError.code === '23505') {
+        console.log(`Event ${event.id} already processed, skipping`)
+        return NextResponse.json({ received: true, skipped: 'duplicate' })
+      }
+      // Other database errors should fail the webhook
+      console.error('Error recording webhook event:', idempotencyError)
+      return NextResponse.json({ error: 'Database error' }, { status: 500 })
     }
 
     switch (event.type) {
@@ -157,12 +162,6 @@ export async function POST(request: Request) {
         }
 
         console.log(`Subscription created/updated for user: ${user.id}`)
-
-        // Record processed event
-        await supabase
-          .from('webhook_events')
-          .insert({ stripe_event_id: event.id, event_type: event.type })
-
         break
       }
 
@@ -191,12 +190,6 @@ export async function POST(request: Request) {
         }
 
         console.log(`Subscription updated: ${subscription.id}`)
-
-        // Record processed event
-        await supabase
-          .from('webhook_events')
-          .insert({ stripe_event_id: event.id, event_type: event.type })
-
         break
       }
 
@@ -217,12 +210,6 @@ export async function POST(request: Request) {
         }
 
         console.log(`Subscription canceled: ${subscription.id}`)
-
-        // Record processed event
-        await supabase
-          .from('webhook_events')
-          .insert({ stripe_event_id: event.id, event_type: event.type })
-
         break
       }
 
@@ -248,12 +235,6 @@ export async function POST(request: Request) {
             )
           }
         }
-
-        // Record processed event
-        await supabase
-          .from('webhook_events')
-          .insert({ stripe_event_id: event.id, event_type: event.type })
-
         break
       }
 

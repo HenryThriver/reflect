@@ -5,6 +5,15 @@ import { createClient } from '@/lib/supabase/server'
 const ALLOWED_REDIRECTS = ['/dashboard', '/vault', '/templates', '/pricing', '/review', '/account']
 
 function isValidRedirect(path: string): boolean {
+  // Reject absolute URLs (could redirect to external sites)
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('//')) {
+    return false
+  }
+  // Reject path traversal attempts
+  if (path.includes('..')) {
+    return false
+  }
+  // Must start with an allowed prefix
   return ALLOWED_REDIRECTS.some((allowed) => path.startsWith(allowed))
 }
 
