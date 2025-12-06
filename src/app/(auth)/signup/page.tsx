@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertCircle, Loader2, CheckCircle } from 'lucide-react'
+import { useOAuthLogin } from '@/hooks/use-oauth-login'
 
 const ALLOWED_REDIRECTS = ['/dashboard', '/vault', '/templates', '/pricing', '/review', '/account']
 
@@ -36,6 +37,8 @@ function SignupForm() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+
+  const { signInWithGoogle, isOAuthLoading, oauthError } = useOAuthLogin(redirectTo)
 
   const validatePassword = (pwd: string): string | null => {
     if (pwd.length < 8) return 'Password must be at least 8 characters'
@@ -77,25 +80,6 @@ function SignupForm() {
     setLoading(false)
   }
 
-  const handleGoogleSignup = async () => {
-    setError('')
-    setLoading(true)
-
-    const supabase = createClient()
-
-    const { error: authError } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}`,
-      },
-    })
-
-    if (authError) {
-      setError(authError.message)
-      setLoading(false)
-    }
-  }
-
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -133,10 +117,10 @@ function SignupForm() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {error && (
+          {(error || oauthError) && (
             <div className="flex items-center gap-2 p-3 mb-4 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 rounded-md">
               <AlertCircle className="h-4 w-4 flex-shrink-0" />
-              {error}
+              {error || oauthError}
             </div>
           )}
 
@@ -195,8 +179,8 @@ function SignupForm() {
           <Button
             variant="outline"
             className="w-full"
-            onClick={handleGoogleSignup}
-            disabled={loading}
+            onClick={signInWithGoogle}
+            disabled={loading || isOAuthLoading}
           >
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
               <path

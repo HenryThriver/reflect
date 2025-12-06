@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getAllTemplates, getTemplate } from '@/lib/templates'
 import { Button } from '@/components/ui/button'
@@ -27,20 +28,24 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Fetch subscription status
-  const { data: subscription } = await supabase
-    .from('subscriptions')
-    .select('*')
-    .eq('user_id', user?.id)
-    .single<Subscription>()
+  if (!user?.id) {
+    redirect('/login')
+  }
 
-  // Fetch user's annual reviews
-  const { data: reviews } = await supabase
-    .from('annual_reviews')
-    .select('*')
-    .eq('user_id', user?.id)
-    .order('created_at', { ascending: false })
-    .returns<AnnualReview[]>()
+  // Fetch subscription status and annual reviews in parallel
+  const [{ data: subscription }, { data: reviews }] = await Promise.all([
+    supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', user.id)
+      .single<Subscription>(),
+    supabase
+      .from('annual_reviews')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .returns<AnnualReview[]>(),
+  ])
 
   const isSubscribed = subscription?.status === 'active'
   const templates = getAllTemplates()

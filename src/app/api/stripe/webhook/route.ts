@@ -107,7 +107,10 @@ export async function POST(request: Request) {
 
           if (userError) {
             console.error('Error listing users:', userError)
-            break
+            return NextResponse.json(
+              { error: 'Database error listing users' },
+              { status: 500 }
+            )
           }
 
           if (!usersPage.users.length) break
@@ -147,9 +150,13 @@ export async function POST(request: Request) {
 
         if (upsertError) {
           console.error('Error upserting subscription:', upsertError)
-        } else {
-          console.log(`Subscription created/updated for user: ${user.id}`)
+          return NextResponse.json(
+            { error: 'Database error upserting subscription' },
+            { status: 500 }
+          )
         }
+
+        console.log(`Subscription created/updated for user: ${user.id}`)
 
         // Record processed event
         await supabase
@@ -177,9 +184,13 @@ export async function POST(request: Request) {
 
         if (error) {
           console.error('Error updating subscription:', error)
-        } else {
-          console.log(`Subscription updated: ${subscription.id}`)
+          return NextResponse.json(
+            { error: 'Database error updating subscription' },
+            { status: 500 }
+          )
         }
+
+        console.log(`Subscription updated: ${subscription.id}`)
 
         // Record processed event
         await supabase
@@ -199,9 +210,13 @@ export async function POST(request: Request) {
 
         if (error) {
           console.error('Error canceling subscription:', error)
-        } else {
-          console.log(`Subscription canceled: ${subscription.id}`)
+          return NextResponse.json(
+            { error: 'Database error canceling subscription' },
+            { status: 500 }
+          )
         }
+
+        console.log(`Subscription canceled: ${subscription.id}`)
 
         // Record processed event
         await supabase
@@ -227,6 +242,10 @@ export async function POST(request: Request) {
 
           if (error) {
             console.error('Error updating subscription to past_due:', error)
+            return NextResponse.json(
+              { error: 'Database error updating subscription to past_due' },
+              { status: 500 }
+            )
           }
         }
 
