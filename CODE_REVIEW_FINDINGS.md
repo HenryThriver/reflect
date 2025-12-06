@@ -476,6 +476,7 @@ const { data: user } = await supabase.auth.admin.getUserById(userId)
 - Stripe webhook signature verification implemented
 - Password strength validation with clear requirements
 - Environment variable typing system
+- Next.js 16 `proxy.ts` convention (replaces deprecated `middleware.ts`)
 
 ---
 
