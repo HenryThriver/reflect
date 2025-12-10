@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getTemplate } from '@/lib/templates'
 import { ReviewFlow } from '@/components/review/review-flow'
+import { createClient } from '@/lib/supabase/server'
 
 export default async function ReviewPage({
   params,
@@ -15,5 +16,11 @@ export default async function ReviewPage({
     redirect('/templates')
   }
 
-  return <ReviewFlow template={template} />
+  // Check auth status
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  return <ReviewFlow template={template} isAuthenticated={!!user} />
 }

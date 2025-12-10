@@ -18,9 +18,10 @@ import { LoadingState } from '@/components/ui/loading-state'
 
 interface ReviewFlowProps {
   template: ReviewTemplate
+  isAuthenticated?: boolean
 }
 
-export function ReviewFlow({ template }: ReviewFlowProps) {
+export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProps) {
   const router = useRouter()
   const [showIntro, setShowIntro] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -145,6 +146,7 @@ export function ReviewFlow({ template }: ReviewFlowProps) {
         template={template}
         onStart={handleStart}
         hasExistingProgress={Object.keys(responses).length > 0}
+        isAuthenticated={isAuthenticated}
       />
     )
   }
