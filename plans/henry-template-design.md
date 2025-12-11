@@ -1468,8 +1468,1093 @@ The "Ground It" section then becomes a ROLL-UP forcing prioritization across all
 
 ### Next Steps
 
-1. [ ] Fill in specific questions for each section (pull from question bank)
+1. [x] Fill in specific questions for each section (pull from question bank)
 2. [ ] Define opt-in/opt-out branching logic (primer questions)
 3. [ ] Write Henry's intro letter
 4. [ ] Determine Value Forest handling (use existing? create during review? skip?)
 5. [ ] Build TypeScript template file
+
+---
+
+## Recommended Questions by Section
+
+### 1. RITUAL OPENING
+
+**Flow:**
+```
+1A. Henry's Intro Letter (warm welcome, sets tone)
+        ↓
+1B. Clear Your Space (interactive checklist)
+        ↓
+1C. Create Your Container (ritual invitation + personal touches)
+        ↓
+1D. Set Your Intention (2 questions)
+        ↓
+1E. Cross the Threshold ("Ready, set, GO!")
+```
+
+---
+
+#### 1A. Henry's Intro Letter (Placeholder - to refine)
+
+> **Welcome to my Annual Review process!** 🎉
+>
+> To those of you who don't know me: I've done extensive annual reviews going on 4+ years now and it is one of the most meaningful and productive weeks of my life. I synthesize frameworks from multiple sources and integrate that with my worldview on Life, Values, and Thriving.
+>
+> I appreciate this process may seem intense, even too much. The purpose for me is to genuinely consider, with fresh eyes, every aspect of my life and whether I am living the values and qualities aligned with my life mission. It is mutually exclusive and comprehensively exhaustive. Take what serves you and leave the rest.
+>
+> Or, perhaps this is the year you feel inspired to push yourself beyond the constraints of what feels easy, fun, or comfortable. Perhaps this year you also want to challenge everything and leave no stone unturned. Perhaps this year you'll take a fresh look and feel at peace with a fresh start.
+>
+> **Intentional starts result in more energy and commitment. Clear is kind. Especially with yourself.**
+>
+> This is my process and flow to ensure I'm resonant and aligned with MY life path (not what others or society expect of me).
+>
+> I hope that you enjoy this process and find it useful for your own path to Thriving.
+>
+> — Henry
+
+---
+
+#### 1B. Clear Your Space
+
+**Section intro:**
+> Before we dive deep, let's clear the decks. The clearer your mental and practical space, the stronger your signal will be. This isn't busywork—it's creating the conditions for genuine insight.
+>
+> I personally chip away at this daily for a week or so before my review. Don't try to do this all in one sitting if it feels overwhelming.
+
+**Interactive Checklist (checkboxes, skippable):**
+
+| # | Task | Type |
+|---|------|------|
+| 1B.1 | **Brain dump** - Write down anything free-floating or taking up mental space. Keep writing until you have 60 seconds where nothing new comes to mind. Clear your mind. | checkbox |
+| 1B.2 | **Clear your task list** - Process or park any open items in your to-do/project management system so they're not nagging at you | checkbox |
+| 1B.3 | **Clear your inbox** - Triage, archive, or declare email bankruptcy. Zero or close to it. | checkbox |
+| 1B.4 | **Clear your desktop** - Digital clutter creates mental clutter | checkbox |
+| 1B.5 | **Clear your downloads folder** - Yes, that too | checkbox |
+| 1B.6 | **Clear your physical space** - Clean your desk, or better yet, go somewhere entirely new and different | checkbox |
+
+**Completion prompt:**
+> When you've cleared all the things (or enough of them), continue.
+
+---
+
+#### 1C. Create Your Container
+
+**Section intro:**
+> Now let's make this special. This is sacred time you're giving yourself—treat it that way.
+
+**Ritual invitations (choose your own adventure):**
+
+- Make your favorite cup of coffee or tea
+- Light a candle
+- Put your phone in another room (or airplane mode, at minimum)
+- Pick a warm, comfortable place—your favorite chair, a coffee shop that feels like home
+- Take a few deep breaths. If you'd like, try square breathing: inhale for 4 counts, hold for 4, exhale for 4, hold for 4. Repeat 3-4 times.
+
+**Henry's approach:**
+> For me, I've found going outside to somewhere I don't usually work, or to my local coffee shop with super comfy chairs, is what works best. Change of scenery gives me just enough "different" that I gain a new perspective. I also recommend eating a moderately sized high-protein, high-fat meal before (or fast if you're experienced) so your brain works well and your blood sugar is stable.
+
+**A note on handwriting:**
+> I encourage you to work through this entire review by hand first—pen and paper. There's something about handwriting that slows down thought and deepens reflection. The first answer in your head to these questions is usually the right one.
+>
+> If you choose this path, use this tool to capture your handwritten answers afterward. Every question is optional, so you can click through at your own pace as you transfer your responses.
+
+---
+
+#### 1D. Set Your Intention
+
+| # | Question | Type | Notes |
+|---|----------|------|-------|
+| 1D.1 | How do you want to feel at the end of this review? | textarea | Somatic intention |
+| 1D.2 | Wave a magic wand: you're at the end of this review looking back, and it was an amazingly valuable and meaningful experience. What are 2 things that made this review so good for you? | textarea | Outcome visualization |
+| 1D.3 | What areas of your life do you most want to examine deeply? | textarea | Focus/container setting |
+
+---
+
+#### 1E. Cross the Threshold
+
+**Transition text:**
+> You've cleared your space. You've set your intention. You're ready.
+>
+> What follows is a journey through your year—the highs and lows, the patterns and surprises, the person you've been and the person you're becoming.
+>
+> Take one more breath. When you're ready to begin, step through.
+
+**[Continue button - styled as threshold crossing]**
+
+---
+
+**Design notes:**
+- Intro letter goes first (placeholder from 2023 doc, to refine)
+- "Clear" section is interactive checkboxes—satisfying to click through
+- Ritual container is invitational with "Henry's approach" personal touch
+- Handwriting encouragement + "all questions optional" note
+- 3 intention questions using magic wand framing
+- Threshold moment is explicit and ceremonial
+- Personal voice woven throughout ("For me...", "I've found...")
+
+---
+
+### 2. REMEMBER - High Points
+
+**Flow:**
+```
+2A. Section Intro (warm, sets UP energy)
+        ↓
+2B. Photo Review (anchor activity with album creation)
+        ↓
+2C. Calendar Review + Peak Experiences
+        ↓
+2D. Favorites / Best Of (7 questions)
+        ↓
+2E. Core Reflections (4 questions)
+```
+
+---
+
+#### 2A. Section Intro
+
+> Let's start with the good stuff.
+>
+> Before we examine what didn't work, we're going to ground ourselves in what did. This isn't toxic positivity—it's strategic. The patterns in your highs reveal what to lean into next year.
+>
+> This section often surfaces things I'd completely forgotten—a random Tuesday that turned out to be magical, or a pattern I didn't notice in the moment.
+
+---
+
+#### 2B. Photo Review (Anchor Activity)
+
+> **Open your photos and take a journey through the year.**
+>
+> [Open Google Photos →](https://photos.google.com)
+>
+> As you scroll, notice which images bring up the strongest positive emotions. What moments had you forgotten? What patterns emerge?
+>
+> **Your task:** Create an album of your favorite moments and memories from this year.
+>
+> *Bonus: Turn this into a physical photo book. We order one for most years and love looking through them later. There's something powerful about holding your year in your hands.*
+
+| # | Question | Type |
+|---|----------|------|
+| 2B.1 | What moments or memories stood out as you scrolled through your photos? What surprised you? | textarea |
+
+**Henry's approach:**
+> I keep a running list as I scroll, jotting down anything that sparks joy or curiosity. I don't try to analyze yet—just capture. The patterns reveal themselves later.
+
+---
+
+#### 2C. Calendar Review + Peak Experiences
+
+> Now open your calendar and scroll through the year.
+>
+> [Open Google Calendar (January 2025) →](https://calendar.google.com/calendar/r/month/2025/1/1)
+>
+> What events, trips, milestones, or periods stand out?
+
+| # | Question | Type |
+|---|----------|------|
+| 2C.1 | What high points emerge from your calendar? What were the moments worth remembering? | textarea |
+| 2C.2 | What were your peak experiences this year—moments of joy, awe, satisfaction, or deep connection? | textarea |
+
+---
+
+#### 2D. Favorites / Best Of
+
+| # | Question | Type |
+|---|----------|------|
+| 2D.1 | What were your favorite books, essays, or articles this year? What made them meaningful to you? | textarea |
+| 2D.2 | What were your favorite movies, shows, or podcasts? What stood out to or resonated with you? | textarea |
+| 2D.3 | What were your favorite experiences—concerts, performances, events, or adventures? | textarea |
+| 2D.4 | What were your favorite trips or travel moments? | textarea |
+| 2D.5 | Did you have any spiritual or expansive experiences this year? What happened and how has it impacted you? | textarea |
+| 2D.6 | What new skills did you learn or start developing? | textarea |
+| 2D.7 | What did you read, watch, or learn that changed your mind? What belief shifted? | textarea |
+
+---
+
+#### 2E. Core Reflections
+
+| # | Question | Type |
+|---|----------|------|
+| 2E.1 | What accomplishments are you most proud of? | textarea |
+| 2E.2 | What's something small that made you smile? Not a big achievement—just a moment of unexpected delight. | textarea |
+| 2E.3 | What new connection or relationship had a big impact on you this year? Why and how? | textarea |
+| 2E.4 | When did you feel most connected to others this year? What facilitated or deepened that connection? | textarea |
+| 2E.5 | Who and what are you most grateful for this year? | textarea |
+| 2E.6 | If you could relive any moment from this year, which would it be? What about that moment do you want to experience again? | textarea |
+
+---
+
+**Design notes:**
+- Photo review is anchor activity with album creation task + physical book bonus
+- Calendar links directly to January 2025 month view
+- Peak experiences moved to follow calendar (grounded in data)
+- 7 favorites questions covering: written content, screen/audio, live experiences, travel, spiritual/expansive, skills, changed mind
+- Core reflections: accomplishments → small joys → new relationships → connection moments → gratitude → relive (with why)
+- Added relational questions (2E.3, 2E.4) to balance Physiological/Psychological with Relational Thriving
+- Spiritual/expansive question is distinctly "Henry's template"
+- Total: 2 activities + 15 questions
+
+---
+
+### 3. ACKNOWLEDGE - Low Points
+
+**Flow:**
+```
+3A. Section Intro (honest but not punishing)
+        ↓
+3B. Hardship & Drains (general → energy)
+        ↓
+3C. Relational (strained relationships, failing to show up)
+        ↓
+3D. Revealed Preferences (what you let go/forgot)
+        ↓
+3E. Fear (what it cost + reframe)
+        ↓
+3F. Disappointments
+        ↓
+3G. Self-Compassion Close (time travel hug)
+```
+
+---
+
+#### 3A. Section Intro
+
+> Now let's look at what didn't work.
+>
+> This isn't about self-judgment—it's about honest acknowledgment. The patterns in your lows reveal what to change, release, or protect yourself from.
+
+---
+
+#### 3B. Hardship & Drains
+
+| # | Question | Type |
+|---|----------|------|
+| 3B.1 | What were your toughest moments this year? How did you get through them? | textarea |
+| 3B.2 | What drained your energy or held you back this year? Think about people, tasks, obligations, beliefs, or circumstances that depleted you or blocked your progress. | textarea |
+
+---
+
+#### 3C. Relational
+
+| # | Question | Type |
+|---|----------|------|
+| 3C.1 | What relationship felt strained or neglected this year? | textarea |
+| 3C.2 | Where did you fail to show up for someone important to you? | textarea |
+
+---
+
+#### 3D. Revealed Preferences
+
+| # | Question | Type |
+|---|----------|------|
+| 3D.1 | What did you let go of this year—intentionally or not? What did you simply forget about? | textarea |
+
+---
+
+#### 3E. Fear
+
+| # | Question | Type |
+|---|----------|------|
+| 3E.1 | What did you not do because of fear? Be honest about what fear cost you this year. | textarea |
+| 3E.2 | Looking at that fear: What were the realistic downsides? What were the potential upsides you missed? | textarea |
+
+---
+
+#### 3F. Disappointments
+
+| # | Question | Type |
+|---|----------|------|
+| 3F.1 | What were your biggest disappointments or misses? | textarea |
+
+---
+
+#### 3G. Self-Compassion Close
+
+| # | Question | Type |
+|---|----------|------|
+| 3G.1 | You can time travel to any moment in the past year to give yourself a hug and envelop yourself in compassion. What situation or experience do you choose? | textarea |
+
+---
+
+**Design notes:**
+- Section intro frames acknowledgment as useful, not punishing
+- Energy drainers/blockers merged into one comprehensive question (people first)
+- Relational questions added to balance Psychological with Relational Thriving
+- Revealed preferences (what you dropped) surfaces what actually matters vs. what you thought mattered
+- Fear sequence (3E.1 + 3E.2) kept as two questions—the pause between "what did fear cost?" and "was it justified?" is valuable
+- Self-compassion close (3G.1) brings warmth back before moving to Synthesize
+- Total: 9 questions
+
+---
+
+### 4. SYNTHESIZE - Pattern Finding
+
+**Flow:**
+```
+4A. Section Intro (zoom out, find patterns)
+        ↓
+4B. Patterns (highs → lows → energy)
+        ↓
+4C. Relational Mirror
+        ↓
+4D. Surprises & Risks
+        ↓
+4E. Lessons & Story
+        ↓
+4F. Release (stories to let go)
+```
+
+---
+
+#### 4A. Section Intro
+
+> Now let's zoom out and find the patterns. What do all these data points add up to? What did this year teach you?
+
+---
+
+#### 4B. Patterns
+
+| # | Question | Type |
+|---|----------|------|
+| 4B.1 | Looking at your high points: What patterns do you notice? What conditions, people, or choices led to those moments? | textarea |
+| 4B.2 | Looking at your low points: What patterns do you notice? Are there recurring themes in what brought you down? | textarea |
+| 4B.3 | When throughout the year did you feel most energized? What created that energy for you? | textarea |
+
+---
+
+#### 4C. Relational Mirror
+
+| # | Question | Type |
+|---|----------|------|
+| 4C.1 | What did you learn about yourself from your relationships? How others engage with us is a mirror on how we engage with the world—what do you perceive was reflected back to you? | textarea |
+
+---
+
+#### 4D. Surprises & Risks
+
+| # | Question | Type |
+|---|----------|------|
+| 4D.1 | What surprised you this year? What happened that you didn't expect or plan for? | textarea |
+| 4D.2 | What risks did you take this year? What inspired you to go there? | textarea |
+
+---
+
+#### 4E. Lessons & Story
+
+| # | Question | Type |
+|---|----------|------|
+| 4E.1 | What did you learn this year? What important lessons would you impart from your experiences? | textarea |
+| 4E.2 | If this year were a chapter in your life story, what would you title it? What was the narrative arc? | textarea |
+
+---
+
+#### 4F. Release
+
+| # | Question | Type |
+|---|----------|------|
+| 4F.1 | What stories from this year are you ready to let go of? What narratives no longer serve you? | textarea |
+
+---
+
+**Design notes:**
+- "Changed mind" question moved to Section 2 (anchored to media/learning)
+- Pattern questions (highs, lows, energy) bridge Remember/Acknowledge with forward-looking sections
+- Relational mirror question balances Psychological with Relational Thriving
+- Risks question captures courage and what inspired it
+- Chapter/narrative framing forces synthesis into a cohesive story
+- "Stories to let go" closes section by releasing old narratives before moving forward
+- Total: 9 questions
+
+---
+
+### 5. VALUE FOREST REVIEW
+
+**Flow:**
+```
+5A. Section Intro
+        ↓
+5B. Select Your Value Trees (checkboxes - pick which apply)
+        ↓
+5C. Per-Tree Deep Dive (for each selected tree)
+        ↓
+5D. Rank Order (prioritize your selected trees)
+        ↓
+5E. Overview / Satisfaction Snapshot
+```
+
+---
+
+#### 5A. Section Intro
+
+> Now we turn to the heart of your life—the different areas that make up who you are and how you spend your time.
+>
+> I use a framework I call the "Value Forest"—a collection of Value Trees, each representing an important area of life. Each tree has roots (your purpose), a trunk (your values), branches (your outcomes), and leaves (your projects).
+>
+> In this section, you'll select which life areas are relevant to you right now, reflect deeply on each one, and then prioritize them. Not every tree will apply to everyone—that's the point. Choose the ones that matter to you.
+
+**Henry's approach:**
+> I have 18 Value Trees, but for most people 8-10 is plenty. The categories below cover the major life domains. If something doesn't fit neatly, that might be a sign you need to create your own custom tree—but for now, work with what resonates.
+
+---
+
+#### 5B. Select Your Value Trees
+
+> **Select the life areas that are relevant to you right now.** You'll reflect on each one you choose.
+>
+> Don't overthink it—if an area matters to you, select it. You can always skip questions later.
+
+**Default Value Trees (13 options, multi-select checkboxes):**
+
+| # | Tree | Description | Pre-selected? |
+|---|------|-------------|---------------|
+| 1 | **Health & Body** | Physical health, fitness, energy, nutrition, sleep | ✅ Yes |
+| 2 | **Career & Work** | Job, professional development, business, impact | ✅ Yes |
+| 3 | **Finances** | Income, savings, investments, financial security | ✅ Yes |
+| 4 | **Partnership** | Romantic relationship, marriage, significant other | No |
+| 5 | **Family** | Parents, siblings, extended family, chosen family | ✅ Yes |
+| 6 | **Friendships & Community** | Social connections, meaningful relationships, belonging | ✅ Yes |
+| 7 | **Home & Environment** | Physical space, where you live, your sanctuary | No |
+| 8 | **Learning & Intellect** | Reading, studying, skill development, curiosity | ✅ Yes |
+| 9 | **Creativity & Play** | Hobbies, creative expression, fun, leisure | No |
+| 10 | **Spirituality & Meaning** | Inner life, purpose, faith, practices, presence | No |
+| 11 | **Giving & Service** | Contribution, volunteering, mentoring, social impact | No |
+| 12 | **Experiences & Adventure** | Travel, culture, new experiences, exploration | No |
+| 13 | **Parenthood** | Children, caregiving, parenting *(if applicable)* | No |
+
+**UI Notes:**
+- Pre-select ~6 common ones to reduce friction
+- User can add/remove as needed
+- Consider "Select All" and "Clear" buttons
+- Show count: "You've selected X trees"
+
+**"+ Add custom tree" button:**
+- Appears below the 13 default options
+- When clicked, prompts for:
+  - Tree name (required)
+  - Brief description (optional)
+- User can add as many custom trees as they like
+- Custom trees appear in the list and are automatically selected
+
+---
+
+#### 5C. Per-Tree Deep Dive
+
+**Section intro (shown once before first tree):**
+
+> Each Value Tree has a structure:
+>
+> - **Roots (Scope)** — What this area of life encompasses for you
+> - **Trunk (Standards)** — How you want to show up; the principles that guide you here
+> - **Branches (Resolves)** — What you want to achieve or become
+> - **Leaves (Outcomes)** — Specific projects, actions, or milestones
+>
+> For each tree, we'll first define its scope and standards, then reflect on the past year and set intentions for the year ahead. In future years, your resolves and outcomes will carry forward—building on what you've already established.
+
+---
+
+**For EACH selected Value Tree:**
+
+**Tree header:**
+> **[VALUE TREE]**
+
+---
+
+**SETUP (Define the Tree)**
+
+| # | Question | Type | Notes |
+|---|----------|------|-------|
+| 5C.1 | **Scope:** What does this area encompass for you? | textarea (pre-filled, editable) | Roots — pre-filled with default; user can edit |
+| 5C.2 | **Standards:** How do you want to show up in this area? What principles guide you here? | textarea | Trunk — values/principles |
+
+**Pre-filled scope defaults:**
+- Health & Body: "Physical health, fitness, energy, nutrition, sleep"
+- Career & Work: "Job, professional development, business, impact"
+- Finances: "Income, savings, investments, financial security"
+- Partnership: "Romantic relationship, marriage, significant other"
+- Family: "Parents, siblings, extended family, chosen family"
+- Friendships & Community: "Social connections, meaningful relationships, belonging"
+- Home & Environment: "Physical space, where you live, your sanctuary"
+- Learning & Intellect: "Reading, studying, skill development, curiosity"
+- Creativity & Play: "Hobbies, creative expression, fun, leisure"
+- Spirituality & Meaning: "Inner life, purpose, faith, practices, presence"
+- Giving & Service: "Contribution, volunteering, mentoring, social impact"
+- Experiences & Adventure: "Travel, culture, new experiences, exploration"
+- Parenthood: "Children, caregiving, parenting"
+
+---
+
+**REFLECT (Look Back + Look Forward)**
+
+| # | Question | Type | Notes |
+|---|----------|------|-------|
+| 5C.3 | What are you most proud of in [TREE] this year? | textarea | Celebration |
+| 5C.4 | Who supported you or showed up for you here? What are you grateful for in this area? | textarea | Gratitude + Relational |
+| 5C.5 | What held you back or didn't go the way you hoped? What fears or obstacles got in the way? | textarea | Acknowledgment |
+| 5C.6 | What do you want next year? What outcomes, ways of being, or changes are you aspiring to? | textarea | Branches — Resolves/Aspirations |
+| 5C.7 | Who or what could help you with this? Is there anyone you know or are aware of who has succeeded doing something similar? | textarea | Help + Mentorship |
+| 5C.8 | How satisfied are you with this area of your life right now? | 5-point scale | Satisfaction rating |
+
+**Scale options for 5C.8:**
+1. Very dissatisfied
+2. Dissatisfied
+3. Neutral
+4. Satisfied
+5. Very satisfied
+
+---
+
+**UI Notes:**
+- Show progress indicator: "Tree 3 of 8: Finances"
+- Allow "Skip this tree" if user changes their mind
+- Consider a "quick mode" toggle: just 5C.3 (proud) + 5C.6 (aspiration) + 5C.8 (satisfaction)
+- Year 2+: Pre-fill 5C.1 (Scope) and 5C.2 (Standards) from last year; pre-fill 5C.6 with last year's resolves for review/update
+
+---
+
+#### 5D. Rank Order Your Trees
+
+> You've reflected on each of your Value Trees. Now let's prioritize.
+>
+> Drag to reorder your selected trees from most important to least important for the coming year. This isn't about which tree is objectively "best"—it's about where you want to focus your energy and attention.
+
+| # | Question | Type |
+|---|----------|------|
+| 5D.1 | Rank your Value Trees in order of priority for the coming year: | drag-and-drop ranking |
+
+**UI Notes:**
+- Drag-and-drop interface with numbered positions
+- Show tree name + a snippet from their aspiration (5C.4) as context
+- Confirmation: "Your top 3 priorities are: 1. [X], 2. [Y], 3. [Z]"
+
+---
+
+#### 5E. Overview - Seeing the Forest
+
+> Now let's zoom out and see the whole forest.
+
+**The Reveal: Your Forest at a Glance**
+
+Before the reflection questions, display a visual summary showing **priority rank + satisfaction together**:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  YOUR VALUE FOREST (by your priority ranking)               │
+│                                                             │
+│  Priority    Tree                        Satisfaction       │
+│  ────────────────────────────────────────────────────────   │
+│  1.          Career & Work               ●●●○○ Neutral      │
+│  2.          Health & Body               ●●○○○ Dissatisfied │
+│  3.          Partnership                 ●●●●○ Satisfied    │
+│  4.          Finances                    ●●○○○ Dissatisfied │
+│  5.          Learning & Intellect        ●●●●● Very satisfied│
+│  6.          Family                      ●●●●○ Satisfied    │
+│  7.          Friendships & Community     ●●●○○ Neutral      │
+│  8.          Spirituality & Meaning      ●○○○○ Very dissatisfied│
+│                                                             │
+│  ─────────────────────────────────────────────────────────  │
+│  🎯 Focus areas (high priority + low satisfaction):         │
+│     • Career & Work (Priority #1, Neutral)                  │
+│     • Health & Body (Priority #2, Dissatisfied)             │
+│     • Finances (Priority #4, Dissatisfied)                  │
+│                                                             │
+│  ✅ Protect (high priority + high satisfaction):            │
+│     • Partnership (Priority #3, Satisfied)                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**The Insight:**
+- **Focus areas** = Top priorities with low satisfaction → where to invest energy
+- **Protect** = Top priorities with high satisfaction → maintain what's working
+- Low priority + low satisfaction → might be okay to deprioritize further
+
+**UI Notes:**
+- Ordered by user's priority ranking (from 5D)
+- Satisfaction shown alongside each (from 5C.8)
+- Auto-highlight "Focus areas" (top half of priorities with satisfaction ≤ Neutral)
+- Auto-highlight "Protect" (top half of priorities with satisfaction ≥ Satisfied)
+
+---
+
+**Reflection Questions:**
+
+| # | Question | Type |
+|---|----------|------|
+| 5E.1 | Looking at your forest, where is the biggest gap between where you are and where you want to be? | textarea |
+| 5E.2 | Are there any Value Trees that have shifted in importance this year? Something that used to matter that doesn't anymore, or something newly important? | textarea |
+| 5E.3 | How do your different Value Trees affect each other? Where does progress in one area support another? Where do they compete for your time and energy? | textarea |
+
+---
+
+**Design notes:**
+- 13 default Value Trees cover major life domains (derived from Henry's 18 + Ness Labs + Gustin)
+- 6 pre-selected to reduce friction; user adds/removes as relevant
+- "+ Add custom tree" allows unlimited custom additions
+- Tree structure education at start: Roots (Scope) → Trunk (Standards) → Branches (Resolves) → Leaves (Outcomes)
+- Per-tree flow: SETUP (Scope + Standards) → REFLECT (Proud → Gratitude → Held back → Aspiration → Help → Satisfaction)
+- 8 questions per tree (2 setup + 6 reflect)
+- Rank ordering happens AFTER filling out trees (informed prioritization)
+- "The Reveal" shows all trees ranked by satisfaction—a visual "aha" moment
+- Interdependencies question (5E.3) surfaces trade-offs and synergies unique to this template
+- Year 2+: Scope, Standards, and prior Resolves pre-fill for continuity
+- Total: selection + 8 per-tree + ranking + reveal + 3 reflection
+
+**Length consideration:**
+- If user selects 8 trees × 8 questions = 64 questions in deep-dive alone
+- Quick mode alternative: just 5C.3 (proud) + 5C.6 (aspiration) + 5C.8 (satisfaction) = 24 questions for 8 trees
+- Estimated time: 45-90 min depending on trees selected and depth
+
+---
+
+### 6. RESTORATION & KEYSTONE HABITS
+
+**Flow:**
+```
+6A. Section Intro (keystone species framing)
+        ↓
+6B. Rest & Restoration (what filled your cup)
+        ↓
+6C. Keystone Behaviors (small actions, outsized impact)
+```
+
+---
+
+#### 6A. Section Intro
+
+> In every ecosystem, there are keystone species—organisms whose presence has a disproportionate impact on everything around them. Wolves don't just hunt deer; they reshape rivers, regrow forests, and transform entire landscapes through their presence.
+>
+> Your habits work the same way. Some behaviors, practiced consistently, have ripple effects far beyond their apparent size. And just as important: how you rest and restore determines whether you have the energy to show up at all.
+>
+> This section is about finding your keystone habits—and protecting the restoration that makes everything else possible.
+
+---
+
+#### 6B. Rest & Restoration
+
+| # | Question | Type |
+|---|----------|------|
+| 6B.1 | What activities or experiences filled your cup this year versus just filled your time? | textarea |
+| 6B.2 | When did you feel most rested and vibrant? What were you doing (or not doing) to cultivate that? | textarea |
+| 6B.3 | When throughout the year were you "being" without the need to be "doing"? What is the right balance of those two poles for you? | textarea |
+| 6B.4 | What behaviors or beliefs got in the way of your rest this year? Is there anything to be done about those blockers next year? | textarea |
+
+---
+
+#### 6C. Keystone Behaviors
+
+> Some habits have ripple effects far beyond their size. A morning walk doesn't just improve fitness—it changes your mood, your creativity, your patience with others. These are keystone behaviors.
+>
+> Rather than committing to sweeping changes, think of these as experiments. What might you try in Q1 and learn from?
+
+| # | Question | Type |
+|---|----------|------|
+| 6C.1 | Looking back: What small, repeated actions had the biggest ripple effects on your life this year—for better or worse? | textarea |
+| 6C.2 | What are 2-3 keystone behaviors you'd like to experiment with in Q1? Small habits you suspect might have positive ripple effects. Be specific: What time of day would this happen? What comes before or after? What would trigger this behavior? | textarea |
+| 6C.3 | Is there a habit you want to experiment with releasing? Something that might be quietly draining you that you'd like to try living without for a month or two. Be specific: When does this habit typically occur? What triggers it? What might you do instead? | textarea |
+| 6C.4 | Is there anything that would hinder your ability to add or remove those habits? What can you do, or who can you tap, to help you overcome those blockers? | textarea |
+
+---
+
+**Design notes:**
+- Keystone species framing connects to Value Forest ecosystem metaphor
+- Rest & Restoration comes FIRST—energy enables everything else
+- "Filled your cup vs. filled your time" is intuitive and distinct
+- "Most rested and vibrant" focuses on peak states, not generic satisfaction
+- Blockers framed as behaviors/beliefs (changeable), not external threats
+- Keystone behaviors framed as Q1 experiments—low stakes, learnable
+- "Experiment with releasing" applies same experimental mindset to removal
+- Final question does CBT-style obstacle anticipation + support identification
+- "Being vs. Doing" question adds contemplative dimension beyond just energy management
+- Total: 8 questions (4 rest + 4 keystone)
+
+**Inspirations:**
+- *The Power of Habit* (Charles Duhigg) — trigger-routine-reward loop; understanding cues
+- *The Willpower Instinct* (Kelly McGonigal) — specificity in habit planning, implementation intentions
+- *Atomic Habits* (James Clear) — habit stacking, making habits obvious/attractive/easy/satisfying
+- *Tiny Habits* (BJ Fogg) — small experiments, celebrating tiny wins, anchor behaviors
+
+---
+
+### 7. WAYFINDING - Charting the Path Ahead
+
+**Flow:**
+```
+7A. Section Intro
+        ↓
+7B. Meeting Your Future Self (Guided Visualization)
+        ↓
+7C. Big Questions (Feynman-inspired)
+        ↓
+7D. Feel / Become / Experience
+        ↓
+7E. Theme for the Year
+```
+
+---
+
+#### 7A. Section Intro
+
+> You've mapped the terrain of your past year. You've examined your ecosystem—your values, your habits, your energy. Now it's time for wayfinding: charting the path ahead.
+>
+> This isn't about rigid planning. It's about orienting yourself—understanding where you want to go and how you want to travel. Give yourself permission to want what you actually want, not what you think you should want.
+
+---
+
+#### 7B. Meeting Your Future Self (Guided Visualization)
+
+> *This is a guided visualization. Find a comfortable position, take a few breaths, and let yourself settle.*
+>
+> **Your Happy Place**
+> Close your eyes. Picture yourself in your happy place—somewhere you feel completely safe and at peace. It might be real or imagined. Notice the details: What do you see around you? What do you hear? What's the temperature like? Let yourself arrive fully in this space.
+>
+> **Movement**
+> Now, begin to move through this space. Walk slowly. Feel the ground beneath your feet. Notice how your body feels as you move. There's no rush.
+>
+> **A Presence**
+> As you walk, you sense someone nearby. You're not startled—this presence feels safe, familiar somehow. You turn toward them.
+>
+> **Meeting Yourself**
+> It's you. Thirty years from now. This version of you has lived a full life and carries wisdom you don't yet have.
+>
+> Take a moment to observe them: How are they dressed? How do they hold themselves? What do their eyes and smile say? How do they engage with you?
+>
+> They have something very important to tell you. They ask you to take a seat near them and listen.
+
+**After the visualization:**
+
+| # | Question | Type |
+|---|----------|------|
+| 7B.1 | What did they tell you? What did they want you to know? | textarea |
+| 7B.2 | What did they encourage you to prioritize—or let go of? | textarea |
+
+---
+
+#### 7C. Big Questions (Feynman-Inspired)
+
+> Richard Feynman kept a list of his "favorite problems"—questions he was always turning over in his mind. Not questions with easy answers, but the kind you carry with you, returning to them again and again as you move through life.
+>
+> I love Feynman's way of approaching the world with wonder and curiosity. Rather than rushing to answers, he held big questions loosely—letting them guide his attention without demanding resolution.
+
+| # | Question | Type |
+|---|----------|------|
+| 7C.1 | What are 3-6 big questions you're holding for your life right now? Questions you don't have answers to, but that feel important to keep asking. | textarea |
+
+**Examples (if helpful):**
+- What would it feel like to be completely at peace with myself?
+- How do I want to be remembered by the people I love?
+- What would I do if I knew I couldn't fail?
+- What am I avoiding that I know I need to face?
+- What does "enough" actually look like for me?
+
+---
+
+#### 7D. Feel / Become / Experience
+
+| # | Question | Type |
+|---|----------|------|
+| 7D.1 | How do you want to FEEL next year? Not what you want to accomplish—how you want to experience your days. What emotional texture do you want your life to have? | textarea |
+| 7D.2 | Who do you want to BECOME in the coming year? What qualities, capacities, or ways of being do you want to develop? | textarea |
+| 7D.3 | What do you want to EXPERIENCE next year? What moments, adventures, or milestones are you looking forward to—or want to create? | textarea |
+
+---
+
+#### 7E. Theme for the Year
+
+| # | Question | Type |
+|---|----------|------|
+| 7E.1 | What word or theme do you want to carry into the coming year? | text |
+| 7E.2 | What does this theme mean to you? How will you embody it? | textarea |
+
+**Henry's approach:**
+> I've had years guided by words like "Depth," "Presence," "Integration." The word doesn't have to be perfect—it's a compass, not a contract. Let it find you.
+
+---
+
+**Design notes:**
+- "Wayfinding" continues the nature/journey metaphor—charting your path through the landscape you've mapped
+- Section intro frames this as orienting, not rigid planning
+- 7B is a full guided visualization (not just a question)—creates immersive experience
+- Future self is "30 years from now" (not 80) to work for various ages
+- Visualization builds: happy place → movement → presence → meeting → listening
+- Feynman section framed with Henry's personal appreciation for his approach
+- Feel/Become/Experience trio is distinct from "achieve"—somatic and identity-focused
+- Theme question split into two: the word itself (short) and what it means (deeper)
+- Total: 7 questions (2 visualization + 1 Feynman + 3 Feel/Become/Experience + 1 theme meaning)
+- Note: 7E.1 (theme word) is a short text input, not a full textarea
+
+---
+
+### 8. GROUND IT - From Aspirations to Action
+
+**Flow:**
+```
+8A. Section Intro
+        ↓
+8B. The Aspirations Summary (pull forward all "do better" items)
+        ↓
+8C. Q1 Focus (what to prioritize now)
+        ↓
+8D. Creating Space (the power of no + don't do list)
+        ↓
+8E. Defining Success
+```
+
+---
+
+#### 8A. Section Intro
+
+> You've done a lot of dreaming. You've set aspirations across your Value Trees, identified keystone habits to experiment with, and charted the path ahead.
+>
+> Now let's get grounded. The truth is: you probably can't do all the things all at once. And that's okay. This section is about choosing what to focus on *first*—not forever, just for Q1.
+>
+> Think of this as tending your garden. You can't plant everything in one season. What will you nurture first? What can wait until the soil is ready?
+
+---
+
+#### 8B. The Aspirations Summary
+
+> Before you prioritize, let's see everything in one place. Here are the aspirations and "do better" intentions you've expressed throughout this review:
+
+**Auto-generated summary (pulled from earlier responses):**
+```
+┌─────────────────────────────────────────────────────────────┐
+│  YOUR ASPIRATIONS (from Value Trees - top 5 by priority)    │
+│                                                             │
+│  1. Career & Work: [their 5C.6 response excerpt]           │
+│  2. Health & Body: [their 5C.6 response excerpt]           │
+│  3. Partnership: [their 5C.6 response excerpt]             │
+│  4. Finances: [their 5C.6 response excerpt]                │
+│  5. Learning & Intellect: [their 5C.6 response excerpt]    │
+│                                                             │
+│  KEYSTONE HABITS TO EXPERIMENT WITH (from Section 6):       │
+│  • [their 6C.2 response excerpt]                           │
+│                                                             │
+│  THEME FOR THE YEAR: [their 7E.1 response]                 │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**UI Notes:**
+- Auto-pull aspirations from 5C.6 for top 5 priority-ranked trees
+- Include keystone habits from 6C.2
+- Include annual theme from 7E.1
+- This is a "reveal" moment—seeing everything together
+
+| # | Question | Type |
+|---|----------|------|
+| 8B.1 | Looking at all of this together, what stands out? Is there anything you want to add, remove, or reframe? | textarea |
+
+---
+
+#### 8C. Q1 Focus
+
+> You can't do everything at once. What will you focus on in Q1?
+
+| # | Question | Type |
+|---|----------|------|
+| 8C.1 | Of all your aspirations, what 2-3 things do you want to focus on in Q1? These aren't your only priorities—just where you'll direct your energy first. | textarea |
+| 8C.2 | What would have to change in your life to make room for these Q1 priorities? What's currently taking up space that shouldn't be? | textarea |
+
+**Henry's approach:**
+> I aim for 60-70% achievement on my aspirations across the year. If I hit 100%, I wasn't dreaming big enough. If I hit 30%, I overcommitted. Focusing on 2-3 things per quarter means I can actually make progress instead of spreading myself thin.
+
+---
+
+#### 8D. Creating Space (The Power of No)
+
+> Saying "yes" to your priorities means saying "no" to other things. Let's make that explicit—and give yourself permission to defer what doesn't fit right now.
+
+| # | Question | Type |
+|---|----------|------|
+| 8D.1 | What's one thing you will say NO to in Q1 to create space for what you do want? | textarea |
+| 8D.2 | What are 2-3 aspirations from your list that you'll put on your "Don't Do" list for Q1? Things that matter, but that you're giving yourself permission to pick up later. | textarea |
+
+**The Don't Do List:**
+> This isn't about abandoning your aspirations—it's about sequencing them. Putting something on your "Don't Do" list for Q1 means you're consciously choosing to focus elsewhere first. It creates exhale. You can pick these up in Q2 or beyond.
+
+---
+
+#### 8E. Defining Success
+
+| # | Question | Type |
+|---|----------|------|
+| 8E.1 | For your 2-3 Q1 priorities: What would "done" or "success" look like? How would you know you made meaningful progress? | textarea |
+| 8E.2 | For each priority, is this something brand new (requiring activation energy to start) or building on existing momentum? | textarea |
+
+**Why this matters:**
+> New initiatives require more activation energy than continuing something already in motion. Knowing this helps you be realistic about how much you can take on. One brand-new initiative plus one or two "continuing" priorities is often the right balance.
+
+---
+
+**Design notes:**
+- Section intro uses garden metaphor (can't plant everything in one season)
+- 8B is a "reveal" moment—auto-pull aspirations from earlier sections into one view
+- Focus is explicitly on Q1, not the whole year (less overwhelming, more actionable)
+- "Don't Do" list reframes "no" as permission to defer, not abandon
+- Activation energy question moved here from Section 6 (where it felt clunky)
+- Language throughout is experimental/invitational, not heavy/prescriptive
+- Total: 6 questions + aspirations summary display
+
+**Inspirations:**
+- *Essentialism* (Greg McKeown) — the disciplined pursuit of less
+- *The ONE Thing* (Gary Keller) — focus and priority forcing
+- Quarterly planning cycles (12-week year concept)
+
+---
+
+### 9. COMMITMENT - Closing the Arc
+
+**Flow:**
+```
+9A. Section Intro (arriving at New Bliss)
+        ↓
+9B. Letter to Future Self
+        ↓
+9C. First Step (activation)
+        ↓
+9D. Gratitude Close
+        ↓
+9E. Final Reflection (bookend)
+```
+
+---
+
+#### 9A. Section Intro
+
+> You've done the work.
+>
+> You've walked through the forest of your year—remembered what bloomed, acknowledged what withered, noticed the patterns in the undergrowth. You've surveyed your Value Trees, tended to your keystone habits, and charted the path ahead.
+>
+> Now it's time to mark this moment. Not with rigid resolutions, but with intention. A letter to yourself. A single first step. And a closing of the circle.
+
+---
+
+#### 9B. Letter to Future Self
+
+| # | Question | Type |
+|---|----------|------|
+| 9B.1 | Write a letter to yourself one year from now. What do you hope you'll be able to say when you read this? What do you want to remind yourself of? What commitments are you making to yourself? | textarea |
+
+**Prompt suggestions (if helpful):**
+> Dear Future Me,
+>
+> This time next year, I hope you...
+>
+> I want you to remember that...
+>
+> I'm committing to...
+>
+> Don't forget...
+>
+> With love, [Present You]
+
+**Henry's approach:**
+> I actually schedule this letter to arrive via email on December 15th of the following year. Reading last year's letter while doing this year's review is one of my favorite moments—sometimes I've exceeded what I hoped for, sometimes I laugh at what I thought mattered, and sometimes I'm reminded of something I'd forgotten. Either way, it's a gift from Past Me.
+
+---
+
+#### 9C. First Step
+
+| # | Question | Type |
+|---|----------|------|
+| 9C.1 | What is ONE action you can take in the next 48 hours to begin living into your intentions? Something small but concrete that creates momentum. | textarea |
+
+---
+
+#### 9D. The Witness
+
+| # | Question | Type |
+|---|----------|------|
+| 9D.1 | Some people publish their reviews online. Others share with their closest friends and loved ones. Is there anyone you want to share aspects of this review—or your 2026 aspirations—with? | textarea |
+
+---
+
+#### 9E. Final Reflection
+
+**Auto-pull from Section 1:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│  At the start of this review, you said you wanted to feel:  │
+│                                                              │
+│  "[their 1C.1 response]"                                    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| # | Question | Type |
+|---|----------|------|
+| 9E.1 | How do you feel right now, having completed this reflection? Did you get what you hoped for? | textarea |
+| 9E.2 | What did you discover that you didn't expect? | textarea |
+| 9E.3 | What is one question you wished we asked—or you answered—that wasn't included in this review? | textarea |
+
+---
+
+#### 9F. Closing Ritual
+
+> *(Placeholder—to be refined during UI development)*
+>
+> Congratulations. You've completed your Annual Review.
+>
+> What you've written here is a seed catalog for the year ahead. You've mapped the landscape, surveyed your forest, and chosen what to cultivate first. Not everything will grow the way you expect—and that's okay. The garden is alive; it will teach you as you tend it.
+>
+> Return to this review throughout the year. Let it guide your seasons. Let it remind you of who you were becoming when you wrote this.
+>
+> Now, go plant something.
+>
+> — Henry
+
+---
+
+**Design notes:**
+- Section intro updated to "closing of the circle" language
+- Letter to Future Self gets substantial space + prompt suggestions + scheduling tip
+- 9C.1 (first step) creates immediate activation energy—don't let insights die
+- 9D reframed as "The Witness"—sharing as accountability, not obligation
+- 9E pulls forward the opening intention (1C.1) for bookend moment
+- 9E.2 changed to "what did you discover" (more specific)
+- 9E.3 meta-question for template improvement and user reflection
+- Closing ritual is placeholder—to be refined during UI work
+- "Go plant something" is the call to action (not "go achieve things")
+- Total: 6 questions + closing ritual
+
+**Inspirations:**
+- *The Artist's Way* (Julia Cameron) — morning pages and letters to self
+- FutureMe.org — time-capsule letter concept
+- James Clear on identity-based habits ("every action is a vote for who you want to become")
+
+---
+
+## Question Count Summary (Final)
+
+| Section | Questions | Est. Time |
+|---------|-----------|-----------|
+| 1. Ritual Opening | 6 checkboxes + 3 questions | 15-20 min |
+| 2. Remember (High Points) | 2 activities + 15 questions | 25-35 min |
+| 3. Acknowledge (Low Points) | 9 questions | 15-20 min |
+| 4. Synthesize | 9 questions | 15-20 min |
+| 5. Value Forest Review | Select trees + 8 per-tree + 3 overview | 45-90 min (depends on trees) |
+| 6. Restoration & Keystone Habits | 8 questions | 15-20 min |
+| 7. Wayfinding | 8 questions | 15-20 min |
+| 8. Ground It | 6 questions + summary | 15-20 min |
+| 9. Commitment | 6 questions + closing | 15-20 min |
+| **TOTAL (without Section 5)** | ~65 questions | **~2.5 hours** |
+| **TOTAL (with 6 Value Trees)** | ~113 questions | **~3.5-4 hours** |
+
+**Note:** Times assume thoughtful responses. Can be spread across multiple sessions. The review is designed to be done in one sitting if possible (for emotional continuity) but saves progress for multi-session completion.
+
+---
+
+## Open Design Questions (Resolved)
+
+1. ✅ **Value Forest handling:** Branching question offers custom trees OR default 8 life areas
+2. ✅ **Per-tree depth:** 6 questions per tree with potential for abbreviated mode
+3. ✅ **Optional questions:** All questions optional; can click through at own pace
+4. ✅ **Help text:** Added examples throughout (Feynman questions, letter prompts, etc.)
+
+---
+
+## Remaining Implementation Notes
+
+1. **Intro letter:** Placeholder is from 2023 doc; may want to refine/personalize further
+2. **Value Forest branching:** Need UI to handle custom tree entry vs. default selection
+3. **Abbreviated mode:** Consider offering per-section "quick" vs "deep" options
+4. **Progress saving:** Essential for multi-session completion
+5. **Export:** Markdown export should preserve section structure and all responses
