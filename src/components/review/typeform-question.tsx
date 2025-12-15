@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useMemo } from 'react'
 import { Question } from '@/lib/templates/types'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
@@ -9,6 +9,49 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+// Simple markdown parser for question text (links, bold, newlines)
+function parseQuestionMarkdown(text: string): React.ReactNode[] {
+  const parts: React.ReactNode[] = []
+  // Split by double newlines first to create paragraphs
+  const paragraphs = text.split(/\n\n/)
+
+  paragraphs.forEach((paragraph, pIndex) => {
+    if (pIndex > 0) {
+      parts.push(<br key={`br-${pIndex}-1`} />)
+      parts.push(<br key={`br-${pIndex}-2`} />)
+    }
+
+    // Parse links and bold within each paragraph
+    const regex = /\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|([^[*]+)/g
+    let match
+    let keyIndex = 0
+
+    while ((match = regex.exec(paragraph)) !== null) {
+      const [, linkText, linkUrl, boldText, plainText] = match
+
+      if (linkText && linkUrl) {
+        parts.push(
+          <a
+            key={`${pIndex}-${keyIndex++}`}
+            href={linkUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary underline hover:text-primary/80"
+          >
+            {linkText}
+          </a>
+        )
+      } else if (boldText) {
+        parts.push(<strong key={`${pIndex}-${keyIndex++}`}>{boldText}</strong>)
+      } else if (plainText) {
+        parts.push(plainText)
+      }
+    }
+  })
+
+  return parts
+}
 
 interface TypeformQuestionProps {
   question: Question
@@ -20,6 +63,7 @@ interface TypeformQuestionProps {
   isLast: boolean
   questionNumber: number
   totalQuestions: number
+  mode?: 'digital' | 'handwriting'
 }
 
 export function TypeformQuestion({
@@ -32,29 +76,35 @@ export function TypeformQuestion({
   isLast,
   questionNumber,
   totalQuestions,
+  mode = 'digital',
 }: TypeformQuestionProps) {
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null)
+  const isHandwriting = mode === 'handwriting'
+  const parsedQuestionText = useMemo(() => parseQuestionMarkdown(question.text), [question.text])
 
   useEffect(() => {
-    // Focus input on mount
-    const timer = setTimeout(() => {
-      inputRef.current?.focus()
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [question.id])
+    // Focus input on mount (only in digital mode)
+    if (!isHandwriting) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus()
+      }, 300)
+      return () => clearTimeout(timer)
+    }
+  }, [question.id, isHandwriting])
 
-  const canProceed = !question.required || value.trim().length > 0
+  // In handwriting mode, can always proceed. In digital mode, check required fields
+  const canProceed = isHandwriting || !question.required || value.trim().length > 0
 
   return (
     <div className="min-h-screen flex flex-col justify-center px-6 py-12 max-w-3xl mx-auto">
-      {/* Section indicator */}
-      {question.section && (
+      {/* Section indicator - hidden for now */}
+      {/* {question.section && (
         <div className="mb-4">
           <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
             {question.section}
           </span>
         </div>
-      )}
+      )} */}
 
       {/* Question number */}
       <div className="mb-2">
@@ -64,17 +114,25 @@ export function TypeformQuestion({
       </div>
 
       {/* Question text */}
-      <h1 className="text-2xl md:text-3xl font-semibold mb-4 leading-tight">
-        {question.text}
-        {question.required && <span className="text-red-500 ml-1">*</span>}
-      </h1>
+      <div
+        className={cn(
+          'font-semibold mb-4 leading-tight',
+          isHandwriting
+            ? 'text-3xl md:text-4xl font-serif'
+            : 'text-2xl md:text-3xl'
+        )}
+      >
+        {parsedQuestionText}
+        {question.required && !isHandwriting && <span className="text-red-500 ml-1">*</span>}
+      </div>
 
       {/* Help text */}
       {question.helpText && (
         <p className="text-muted-foreground mb-6">{question.helpText}</p>
       )}
 
-      {/* Input based on question type */}
+      {/* Input based on question type - hidden in handwriting mode */}
+      {!isHandwriting && (
       <div className="mb-8">
         {question.type === 'textarea' && (
           <Textarea
@@ -150,11 +208,17 @@ export function TypeformQuestion({
           </div>
         )}
       </div>
+      )}
+
+      {/* Spacer for handwriting mode */}
+      {isHandwriting && <div className="mb-8" />}
 
       {/* Navigation */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-muted-foreground">
-          {question.type === 'textarea' ? (
+          {isHandwriting ? (
+            <span>Press <kbd className="px-2 py-1 bg-muted rounded text-xs">Enter</kbd> when ready</span>
+          ) : question.type === 'textarea' ? (
             <span>Press <kbd className="px-2 py-1 bg-muted rounded text-xs">⌘</kbd> + <kbd className="px-2 py-1 bg-muted rounded text-xs">Enter</kbd> to continue</span>
           ) : (
             <span>Press <kbd className="px-2 py-1 bg-muted rounded text-xs">Enter</kbd> to continue</span>
@@ -183,7 +247,7 @@ export function TypeformQuestion({
             disabled={!canProceed}
             className="ml-2"
           >
-            {isLast ? 'Finish' : 'OK'}
+            {isLast ? 'Finish' : isHandwriting ? 'Next Question' : 'OK'}
           </Button>
         </div>
       </div>

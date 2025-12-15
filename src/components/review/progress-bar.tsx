@@ -1,32 +1,47 @@
 'use client'
 
 import { Progress } from '@/components/ui/progress'
-import { calculateProgress } from '@/lib/utils'
 
 interface ReviewProgressBarProps {
   current: number
   total: number
   templateName?: string
+  sectionName?: string
+  sectionCurrent?: number
+  sectionTotal?: number
 }
 
 export function ReviewProgressBar({
   current,
   total,
-  templateName,
+  sectionName,
+  sectionCurrent,
+  sectionTotal,
 }: ReviewProgressBarProps) {
-  const percentage = calculateProgress(current, total)
+  // Calculate section progress if provided, otherwise fall back to overall
+  const hasSectionInfo = sectionName && sectionCurrent !== undefined && sectionTotal !== undefined
+  const percentage = hasSectionInfo
+    ? Math.round((sectionCurrent / sectionTotal) * 100)
+    : Math.round((current / total) * 100)
+
+  // Extract just the section title (e.g., "Remember (High Points)" from "Section 2: Remember (High Points)")
+  const displaySectionName = sectionName?.replace(/^Section \d+:\s*/, '') || ''
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">
       <div className="max-w-3xl mx-auto px-6 py-3">
         <div className="flex items-center justify-between mb-2">
-          {templateName && (
+          {hasSectionInfo ? (
             <span className="text-sm font-medium truncate mr-4">
-              {templateName}
+              {displaySectionName}
+            </span>
+          ) : (
+            <span className="text-sm font-medium truncate mr-4">
+              Getting started
             </span>
           )}
           <span className="text-sm text-muted-foreground">
-            {percentage}% complete
+            {percentage}%
           </span>
         </div>
         <Progress value={percentage} className="h-1" />

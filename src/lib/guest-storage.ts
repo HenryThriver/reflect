@@ -2,9 +2,14 @@ const STORAGE_KEY = 'guest-annual-review'
 const MAX_STORAGE_SIZE = 5 * 1024 * 1024 // 5MB
 const DEBOUNCE_MS = 500
 
+export type FlowScreen = 'intro' | 'housekeeping' | 'handwriting' | 'centering' | 'questions'
+export type ReviewMode = 'handwriting' | 'digital'
+
 export interface GuestReview {
   templateSlug: string
+  currentScreen: FlowScreen
   currentQuestionIndex: number
+  reviewMode: ReviewMode
   responses: Record<string, string>
   startedAt: string
   completedAt: string | null
@@ -130,7 +135,9 @@ export function startGuestReview(templateSlug: string): GuestReview {
   const storage = getStorage()
   const review: GuestReview = {
     templateSlug,
+    currentScreen: 'intro',
     currentQuestionIndex: 0,
+    reviewMode: 'digital',
     responses: {},
     startedAt: new Date().toISOString(),
     completedAt: null,
@@ -138,6 +145,22 @@ export function startGuestReview(templateSlug: string): GuestReview {
   storage.reviews[templateSlug] = review
   setStorage(storage)
   return review
+}
+
+export function setCurrentScreen(templateSlug: string, screen: FlowScreen): void {
+  const storage = getStorage()
+  const review = storage.reviews[templateSlug]
+  if (!review) return
+  review.currentScreen = screen
+  setStorage(storage)
+}
+
+export function setReviewMode(templateSlug: string, mode: ReviewMode): void {
+  const storage = getStorage()
+  const review = storage.reviews[templateSlug]
+  if (!review) return
+  review.reviewMode = mode
+  setStorage(storage)
 }
 
 export function saveGuestResponse(
