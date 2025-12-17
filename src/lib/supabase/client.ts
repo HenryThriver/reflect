@@ -1,9 +1,15 @@
 import { createBrowserClient } from '@supabase/ssr'
-import { getPublicEnv } from '@/lib/env'
+
+// Note: NEXT_PUBLIC_* env vars must be accessed directly for Next.js build-time replacement
+// Do not use getPublicEnv() here - it breaks client-side bundle
 
 export function createClient() {
-  return createBrowserClient(
-    getPublicEnv('NEXT_PUBLIC_SUPABASE_URL'),
-    getPublicEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY')
-  )
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing Supabase environment variables')
+  }
+
+  return createBrowserClient(supabaseUrl, supabaseAnonKey)
 }

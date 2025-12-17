@@ -32,12 +32,12 @@ const nextConfig: NextConfig = {
             // consider implementing nonce-based CSP with Next.js middleware.
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' https://js.stripe.com",
-              "style-src 'self' 'unsafe-inline'",
+              "script-src 'self' 'unsafe-inline' https://js.stripe.com https://accounts.google.com https://www.gstatic.com",
+              "style-src 'self' 'unsafe-inline' https://accounts.google.com",
               "img-src 'self' data: https:",
               "font-src 'self' data:",
-              "connect-src 'self' https://*.supabase.co https://api.stripe.com",
-              "frame-src https://js.stripe.com",
+              "connect-src 'self' https://*.supabase.co https://api.stripe.com https://accounts.google.com",
+              "frame-src https://js.stripe.com https://accounts.google.com",
             ].join('; '),
           },
         ],

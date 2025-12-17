@@ -16,6 +16,7 @@ import { ErrorAlert } from '@/components/ui/error-alert'
 import { DividerWithText } from '@/components/ui/divider-with-text'
 import { GoogleIcon } from '@/components/icons/google-icon'
 import { useOAuthLogin } from '@/hooks/use-oauth-login'
+import { GoogleOneTap } from '@/components/auth/google-one-tap'
 
 function SignupForm() {
   const searchParams = useSearchParams()
@@ -98,6 +99,7 @@ function SignupForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
+      <GoogleOneTap redirectTo={redirectTo} />
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Create your account</CardTitle>
