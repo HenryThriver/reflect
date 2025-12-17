@@ -51,6 +51,8 @@ export function GoogleSignInButton({
 
       if (error) {
         console.error('Google sign-in error:', error.message)
+        // Show error to user and redirect back to login with error
+        window.location.href = `/login?error=${encodeURIComponent(error.message)}`
         return
       }
 
