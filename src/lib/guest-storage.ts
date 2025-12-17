@@ -1,13 +1,71 @@
 const STORAGE_KEY = 'guest-annual-review'
 const MAX_STORAGE_SIZE = 5 * 1024 * 1024 // 5MB
-const DEBOUNCE_MS = 500
+const DEBOUNCE_MS = 2000 // Increased from 500ms to reduce write frequency
 
+import { z } from 'zod'
+import type { ValueForestState } from '@/lib/value-trees/types'
+import { getDefaultForestState } from '@/lib/value-trees/constants'
+
+export type FlowScreen = 'intro' | 'housekeeping' | 'handwriting' | 'centering' | 'questions' | 'value-forest' | 'visualization'
+export type ReviewMode = 'handwriting' | 'digital'
+
+// Zod schemas for runtime validation
+const FlowScreenSchema = z.enum(['intro', 'housekeeping', 'handwriting', 'centering', 'questions', 'value-forest', 'visualization'])
+const ReviewModeSchema = z.enum(['handwriting', 'digital'])
+
+const ValueForestStateSchema = z.object({
+  phase: z.enum(['intro', 'selection', 'deep-dive', 'ranking', 'overview']),
+  selectedTreeIds: z.array(z.string()),
+  customTrees: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    description: z.string().optional(),
+    isCustom: z.boolean(),
+  })),
+  currentTreeIndex: z.number(),
+  currentQuestionIndex: z.number(),
+  responses: z.record(z.string(), z.object({
+    scope: z.string().optional(),
+    standards: z.string().optional(),
+    proudOf: z.string().optional(),
+    gratitude: z.string().optional(),
+    heldBack: z.string().optional(),
+    aspiration: z.string().optional(),
+    helpNeeded: z.string().optional(),
+    satisfaction: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]).optional(),
+    skipped: z.boolean().optional(),
+  })),
+  ranking: z.array(z.string()),
+  overviewResponses: z.record(z.string(), z.string()),
+}).partial() // Make all fields optional for partial state recovery
+
+const GuestReviewSchema = z.object({
+  templateSlug: z.string(),
+  currentScreen: FlowScreenSchema,
+  currentQuestionIndex: z.number(),
+  reviewMode: ReviewModeSchema,
+  responses: z.record(z.string(), z.string()),
+  startedAt: z.string(),
+  completedAt: z.string().nullable(),
+  // ValueForestState is validated with partial schema for recovery but typed correctly
+  valueForest: ValueForestStateSchema.optional(),
+})
+
+const GuestStorageSchema = z.object({
+  reviews: z.record(z.string(), GuestReviewSchema),
+})
+
+// Types explicitly defined to match expected runtime values
+// Note: Zod schema uses partial for valueForest to enable recovery from corrupt data
 export interface GuestReview {
   templateSlug: string
+  currentScreen: FlowScreen
   currentQuestionIndex: number
+  reviewMode: ReviewMode
   responses: Record<string, string>
   startedAt: string
   completedAt: string | null
+  valueForest?: ValueForestState
 }
 
 export interface GuestStorage {
@@ -45,7 +103,7 @@ function getStorage(): GuestStorage {
         )
 
         // Remove oldest incomplete review (keep completed ones if possible)
-        const oldestIncomplete = reviews.find(([_, r]) => !r.completedAt)
+        const oldestIncomplete = reviews.find(([, r]) => !r.completedAt)
         if (oldestIncomplete) {
           console.warn(`Removing oldest incomplete review: ${oldestIncomplete[0]}`)
           delete data.reviews[oldestIncomplete[0]]
@@ -70,7 +128,18 @@ function getStorage(): GuestStorage {
       }
     }
 
-    storageCache = JSON.parse(stored)
+    const parsed = JSON.parse(stored)
+    // Validate parsed data against schema
+    const result = GuestStorageSchema.safeParse(parsed)
+    if (result.success) {
+      storageCache = result.data as GuestStorage
+    } else {
+      console.warn('Invalid localStorage data, using parsed with fallbacks:', result.error.issues)
+      // Try to salvage what we can - use parsed data but default missing fields
+      storageCache = {
+        reviews: typeof parsed?.reviews === 'object' ? parsed.reviews : {},
+      }
+    }
     return storageCache!
   } catch (error) {
     console.error('Failed to parse guest storage:', error)
@@ -130,7 +199,9 @@ export function startGuestReview(templateSlug: string): GuestReview {
   const storage = getStorage()
   const review: GuestReview = {
     templateSlug,
+    currentScreen: 'intro',
     currentQuestionIndex: 0,
+    reviewMode: 'digital',
     responses: {},
     startedAt: new Date().toISOString(),
     completedAt: null,
@@ -138,6 +209,22 @@ export function startGuestReview(templateSlug: string): GuestReview {
   storage.reviews[templateSlug] = review
   setStorage(storage)
   return review
+}
+
+export function setCurrentScreen(templateSlug: string, screen: FlowScreen): void {
+  const storage = getStorage()
+  const review = storage.reviews[templateSlug]
+  if (!review) return
+  review.currentScreen = screen
+  setStorage(storage)
+}
+
+export function setReviewMode(templateSlug: string, mode: ReviewMode): void {
+  const storage = getStorage()
+  const review = storage.reviews[templateSlug]
+  if (!review) return
+  review.reviewMode = mode
+  setStorage(storage)
 }
 
 export function saveGuestResponse(
@@ -183,6 +270,20 @@ export function clearAllGuestReviews(): void {
   storage.reviews = {}
   setStorage(storage)
   flushStorage()
+}
+
+// Value Forest helpers
+export function getValueForestState(templateSlug: string): ValueForestState {
+  const review = getGuestReview(templateSlug)
+  return review?.valueForest ?? getDefaultForestState()
+}
+
+export function saveValueForestState(templateSlug: string, state: ValueForestState): void {
+  const storage = getStorage()
+  const review = storage.reviews[templateSlug]
+  if (!review) return
+  review.valueForest = state
+  setStorage(storage)
 }
 
 // Auto-flush on page visibility change or unload

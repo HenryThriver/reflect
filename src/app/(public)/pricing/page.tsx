@@ -32,7 +32,7 @@ const features = {
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen py-12 px-6">
+    <div className="py-12 px-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
@@ -114,7 +114,7 @@ export default function PricingPage() {
                 </Button>
                 <Button asChild variant="outline" className="w-full">
                   <a href={STRIPE_CONFIG.paymentLinks.yearly}>
-                    Subscribe Yearly — Save $10
+                    Subscribe Yearly - Save $10
                   </a>
                 </Button>
               </div>
@@ -124,10 +124,10 @@ export default function PricingPage() {
 
         {/* Vault explanation */}
         <div className="mt-16 max-w-2xl mx-auto text-center">
-          <h2 className="text-2xl font-bold mb-4">What's the Vault?</h2>
+          <h2 className="text-2xl font-bold mb-4">What&apos;s the Vault?</h2>
           <p className="text-muted-foreground mb-6">
             The Vault is a time capsule for your reflections. When you complete
-            your annual review, it gets locked away. Next December, you'll
+            your annual review, it gets locked away. Next December, you&apos;ll
             receive a celebratory unlock ceremony where past-you speaks to
             future-you.
           </p>
@@ -164,7 +164,7 @@ export default function PricingPage() {
             <div>
               <h3 className="font-medium mb-1">What happens to my vaults if I cancel?</h3>
               <p className="text-muted-foreground">
-                Your completed and locked vaults remain yours. You just won't be
+                Your completed and locked vaults remain yours. You just won&apos;t be
                 able to create new ones until you resubscribe.
               </p>
             </div>

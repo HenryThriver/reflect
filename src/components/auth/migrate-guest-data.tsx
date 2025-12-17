@@ -11,6 +11,7 @@ export function MigrateGuestData({ userId }: { userId: string }) {
   useEffect(() => {
     const reviews = getAllGuestReviews()
     if (Object.keys(reviews).length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Synchronous check for early exit
       setIsDone(true)
       return
     }
