@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Check, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -71,7 +71,8 @@ export function HousekeepingPage({ onComplete, initialResponses = {} }: Housekee
       const currentState = prev[id]
       // If clicking the same state, toggle it off (back to unset)
       if (currentState === newState) {
-        const { [id]: _, ...rest } = prev
+        const { [id]: _removed, ...rest } = prev
+        void _removed // Explicitly acknowledge unused variable
         return { ...rest, [id]: 'unset' }
       }
       return { ...prev, [id]: newState }
@@ -88,11 +89,11 @@ export function HousekeepingPage({ onComplete, initialResponses = {} }: Housekee
       <div className="mb-10">
         <h1 className="text-3xl md:text-4xl font-bold mb-4">Clear the Decks</h1>
         <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-          Before we dive deep, let's clear the mental and practical clutter. The cleaner your space,
+          Before we dive deep, let&apos;s clear the mental and practical clutter. The cleaner your space,
           the stronger your signal will be.
         </p>
         <p className="text-sm text-muted-foreground italic">
-          I personally chip away at this in short bursts for a few days before my review. Don't try to do this all in one sitting if it feels overwhelming.
+          I personally chip away at this in short bursts for a few days before my review. Don&apos;t try to do this all in one sitting if it feels overwhelming.
         </p>
       </div>
 

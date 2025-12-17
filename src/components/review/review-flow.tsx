@@ -12,7 +12,6 @@ import {
   setReviewMode as saveReviewMode,
   completeGuestReview,
   flushStorage,
-  type FlowScreen,
   type ReviewMode,
 } from '@/lib/guest-storage'
 import { TemplateIntro } from '@/components/templates/template-intro'
@@ -115,6 +114,7 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
 
   // Initialize from localStorage
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional SSR hydration pattern
     setIsClient(true)
     const existingReview = getGuestReview(template.slug)
     if (existingReview) {

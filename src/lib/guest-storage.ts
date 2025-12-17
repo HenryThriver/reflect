@@ -103,7 +103,7 @@ function getStorage(): GuestStorage {
         )
 
         // Remove oldest incomplete review (keep completed ones if possible)
-        const oldestIncomplete = reviews.find(([_, r]) => !r.completedAt)
+        const oldestIncomplete = reviews.find(([, r]) => !r.completedAt)
         if (oldestIncomplete) {
           console.warn(`Removing oldest incomplete review: ${oldestIncomplete[0]}`)
           delete data.reviews[oldestIncomplete[0]]

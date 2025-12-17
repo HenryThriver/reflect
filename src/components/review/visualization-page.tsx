@@ -65,6 +65,7 @@ export function VisualizationPage({ onBegin }: VisualizationPageProps) {
     if (showIntermission) return
 
     if (currentStanza >= STANZAS.length) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Animation completion state
       setIsComplete(true)
       return
     }

@@ -19,7 +19,6 @@ import {
   DEFAULT_TREES,
   TREE_QUESTIONS,
   OVERVIEW_QUESTIONS,
-  getDefaultForestState,
 } from '@/lib/value-trees'
 import type { ValueTree, ValueForestState, ValueTreeResponse, SatisfactionScore } from '@/lib/value-trees'
 
@@ -42,6 +41,7 @@ export function ValueForestSection({
   const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional SSR hydration pattern
     setIsClient(true)
   }, [])
 

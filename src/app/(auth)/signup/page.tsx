@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { getSafeRedirect } from '@/lib/redirect-validation'
@@ -18,7 +18,6 @@ import { GoogleIcon } from '@/components/icons/google-icon'
 import { useOAuthLogin } from '@/hooks/use-oauth-login'
 
 function SignupForm() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = getSafeRedirect(searchParams.get('redirectTo'))
 

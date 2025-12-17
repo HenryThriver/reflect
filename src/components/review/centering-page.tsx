@@ -41,7 +41,7 @@ export function CenteringPage({ onBegin }: CenteringPageProps) {
           </p>
         </div>
         <p className="text-lg md:text-xl text-muted-foreground mb-8 font-light">
-          When you're ready, begin.
+          When you&apos;re ready, begin.
         </p>
         <Button
           size="lg"

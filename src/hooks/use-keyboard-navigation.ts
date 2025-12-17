@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 
 interface UseKeyboardNavigationOptions {
   onNext?: () => void
@@ -27,6 +27,9 @@ interface UseKeyboardNavigationOptions {
   enabled?: boolean
 }
 
+// Use useLayoutEffect on client, useEffect on server (for SSR compatibility)
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
+
 /**
  * Shared keyboard navigation hook for review flow components.
  * Handles Enter, Arrow keys, PageUp/PageDown, Escape, and optionally number keys.
@@ -48,11 +51,13 @@ export function useKeyboardNavigation({
   const onEscapeRef = useRef(onEscape)
   const onNumberKeyRef = useRef(onNumberKey)
 
-  // Update refs on each render
-  onNextRef.current = onNext
-  onPreviousRef.current = onPrevious
-  onEscapeRef.current = onEscape
-  onNumberKeyRef.current = onNumberKey
+  // Update refs in an effect (not during render) to satisfy lint rules
+  useIsomorphicLayoutEffect(() => {
+    onNextRef.current = onNext
+    onPreviousRef.current = onPrevious
+    onEscapeRef.current = onEscape
+    onNumberKeyRef.current = onNumberKey
+  })
 
   useEffect(() => {
     if (!enabled) return

@@ -23,7 +23,7 @@ import { ChevronUp, ChevronDown, ArrowLeft, GripVertical } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SatisfactionDots } from '@/components/ui/satisfaction-dots'
 import { SATISFACTION_LABELS } from '@/lib/value-trees'
-import type { ValueTree, ValueTreeResponse, SatisfactionScore } from '@/lib/value-trees'
+import type { ValueTree, ValueTreeResponse } from '@/lib/value-trees'
 
 interface SortableTreeItemProps {
   tree: ValueTree

@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, PenLine, Monitor } from 'lucide-react'
+import { PenLine, Monitor } from 'lucide-react'
 
 interface HandwritingPageProps {
   onContinue: (mode: 'handwriting' | 'digital') => void
@@ -29,7 +29,7 @@ export function HandwritingPage({ onContinue }: HandwritingPageProps) {
 
         <div className="prose prose-lg dark:prose-invert mb-8">
           <p className="leading-relaxed mb-4">
-            I do my annual review by hand - pen on paper. There's something about the physical motion
+            I do my annual review by hand - pen on paper. There&apos;s something about the physical motion
             that changes how I think. Writing slowly gives me space to pause, to let thoughts fully
             form before committing them to the page.
           </p>
@@ -38,8 +38,8 @@ export function HandwritingPage({ onContinue }: HandwritingPageProps) {
             connections I missed the first time, and gives me a chance to refine what I really meant to say.
           </p>
           <p className="leading-relaxed text-muted-foreground">
-            This two-step process takes more time, but it's how I do my most rigorous thinking.
-            You're welcome to follow along digitally - this tool works either way.
+            This two-step process takes more time, but it&apos;s how I do my most rigorous thinking.
+            You&apos;re welcome to follow along digitally - this tool works either way.
           </p>
         </div>
 

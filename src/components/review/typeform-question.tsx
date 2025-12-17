@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { Question } from '@/lib/templates/types'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'

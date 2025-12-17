@@ -22,6 +22,7 @@ export default function CompletionPage({
   const [isDownloaded, setIsDownloaded] = useState(false)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional SSR hydration pattern
     setIsClient(true)
     setGuestReview(getGuestReview(templateSlug))
   }, [templateSlug])
