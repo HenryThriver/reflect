@@ -55,16 +55,16 @@ export function HenryIntro({
 
         {/* Right side - Letter */}
         <div className="lg:w-1/2 flex flex-col justify-center px-8 py-12 lg:px-16 lg:py-20 bg-background">
-          <div className="max-w-lg mx-auto lg:mx-0">
-            {/* Greeting */}
-            <p className="text-sm text-muted-foreground uppercase tracking-wider mb-6">
-              Welcome
-            </p>
+          <div className="max-w-xl mx-auto lg:mx-0">
+            {/* Title */}
+            <h1 className="text-3xl lg:text-4xl font-bold tracking-tight mb-6">
+              Henry Finkelstein&apos;s Annual Review
+            </h1>
 
             {/* The Letter */}
             <div className="prose prose-lg dark:prose-invert mb-10">
               <p className="text-xl leading-relaxed mb-6">
-                Hi, I&apos;m Henry.
+                Hello and welcome! I&apos;m Henry.
               </p>
               <p className="leading-relaxed mb-6">
                 You&apos;re about to do something most people never make time for: honestly evaluating themselves to anchor peace and clarity.
