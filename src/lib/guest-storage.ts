@@ -2,7 +2,10 @@ const STORAGE_KEY = 'guest-annual-review'
 const MAX_STORAGE_SIZE = 5 * 1024 * 1024 // 5MB
 const DEBOUNCE_MS = 500
 
-export type FlowScreen = 'intro' | 'housekeeping' | 'handwriting' | 'centering' | 'questions'
+import type { ValueForestState } from '@/lib/value-trees/types'
+import { getDefaultForestState } from '@/lib/value-trees/constants'
+
+export type FlowScreen = 'intro' | 'housekeeping' | 'handwriting' | 'centering' | 'questions' | 'value-forest' | 'visualization'
 export type ReviewMode = 'handwriting' | 'digital'
 
 export interface GuestReview {
@@ -13,6 +16,7 @@ export interface GuestReview {
   responses: Record<string, string>
   startedAt: string
   completedAt: string | null
+  valueForest?: ValueForestState
 }
 
 export interface GuestStorage {
@@ -206,6 +210,20 @@ export function clearAllGuestReviews(): void {
   storage.reviews = {}
   setStorage(storage)
   flushStorage()
+}
+
+// Value Forest helpers
+export function getValueForestState(templateSlug: string): ValueForestState {
+  const review = getGuestReview(templateSlug)
+  return review?.valueForest ?? getDefaultForestState()
+}
+
+export function saveValueForestState(templateSlug: string, state: ValueForestState): void {
+  const storage = getStorage()
+  const review = storage.reviews[templateSlug]
+  if (!review) return
+  review.valueForest = state
+  setStorage(storage)
 }
 
 // Auto-flush on page visibility change or unload

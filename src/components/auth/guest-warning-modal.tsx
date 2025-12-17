@@ -30,10 +30,10 @@ export function GuestWarningModal({
             <AlertTriangle className="h-5 w-5 text-amber-500" />
             <DialogTitle>Just so you know...</DialogTitle>
           </div>
-          <DialogDescription className="text-left pt-2">
-            Guest mode saves to this browser only. If you clear browser data or
-            switch devices, your progress may be lost. Sign up (free) to save
-            across devices.
+          <DialogDescription className="text-left pt-2 space-y-3">
+            <span className="block">This review will likely take you multiple days to complete.</span>
+            <span className="block">Guest mode saves to this browser only. If you clear browser data or switch devices, your progress will be lost.</span>
+            <span className="block">Sign up (free) to save answers across devices and get access to premium features.</span>
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex-col gap-2 sm:flex-col">

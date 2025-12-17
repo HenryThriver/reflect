@@ -128,7 +128,7 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold mb-4">The Vault Experience</h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
             Your annual review becomes a time capsule. Lock it away and receive
-            a magical reveal ceremony next December—a letter from past-you to
+            a magical reveal ceremony next December - a letter from past-you to
             future-you.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8 mb-8">
@@ -144,7 +144,7 @@ export default function HomePage() {
           </div>
           <Button asChild size="lg">
             <Link href="/pricing">
-              Unlock the Vault — $5/mo
+              Unlock the Vault - $5/mo
             </Link>
           </Button>
         </div>

@@ -22,6 +22,8 @@ import { HandwritingPage } from '@/components/review/handwriting-page'
 import { CenteringPage } from '@/components/review/centering-page'
 import { TypeformQuestion } from '@/components/review/typeform-question'
 import { ReviewProgressBar } from '@/components/review/progress-bar'
+import { ValueForestSection } from '@/components/review/value-trees'
+import { VisualizationPage } from '@/components/review/visualization-page'
 import { LoadingState } from '@/components/ui/loading-state'
 
 // Question IDs that are handled by the housekeeping page (not shown as individual questions)
@@ -34,6 +36,12 @@ const HOUSEKEEPING_QUESTION_IDS = [
   'prep-ready',
 ]
 
+// Section 4 is handled by the Value Forest component (not shown as individual questions)
+const VALUE_FOREST_SECTION = '4) Value Forest'
+
+// The visualization question ID that triggers the visualization intro page
+const VISUALIZATION_QUESTION_ID = 'future-self-message'
+
 interface ReviewFlowProps {
   template: ReviewTemplate
   isAuthenticated?: boolean
@@ -45,18 +53,42 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
   const [showHousekeeping, setShowHousekeeping] = useState(false)
   const [showHandwritingPage, setShowHandwritingPage] = useState(false)
   const [showCenteringPage, setShowCenteringPage] = useState(false)
+  const [showValueForest, setShowValueForest] = useState(false)
+  const [showVisualization, setShowVisualization] = useState(false)
   const [reviewMode, setReviewMode] = useState<ReviewMode>('digital')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [responses, setResponses] = useState<Record<string, string>>({})
   const [isClient, setIsClient] = useState(false)
 
-  // For Henry's template, filter out housekeeping questions (they're on a separate page)
+  // For Henry's template, filter out housekeeping questions and Section 5 (Value Forest)
+  // These are handled by separate components
   const displayQuestions = useMemo(() => {
     if (template.slug === 'henry-finkelstein') {
-      return template.questions.filter((q) => !HOUSEKEEPING_QUESTION_IDS.includes(q.id))
+      return template.questions.filter(
+        (q) => !HOUSEKEEPING_QUESTION_IDS.includes(q.id) && q.section !== VALUE_FOREST_SECTION
+      )
     }
     return template.questions
   }, [template])
+
+  // Find the index in displayQuestions where Value Forest (Section 4) should be shown
+  // This is after Section 3 (Synthesize) ends and before Section 5 (Restore) begins
+  const section5StartIndex = useMemo(() => {
+    if (template.slug !== 'henry-finkelstein') return -1
+    // Find the first question in Section 5 (Restore) within displayQuestions
+    // Value Forest should appear right before this
+    const firstRestoreIndex = displayQuestions.findIndex(
+      (q) => q.section === '5) Restore'
+    )
+    // If found, return that index. If not found, return -1 (shouldn't happen)
+    return firstRestoreIndex
+  }, [template.slug, displayQuestions])
+
+  // Find the index of the visualization question (future-self-message) in displayQuestions
+  const visualizationQuestionIndex = useMemo(() => {
+    if (template.slug !== 'henry-finkelstein') return -1
+    return displayQuestions.findIndex((q) => q.id === VISUALIZATION_QUESTION_ID)
+  }, [template.slug, displayQuestions])
 
   // Calculate section-specific progress (must be before early returns for hook order consistency)
   const sectionProgress = useMemo(() => {
@@ -101,6 +133,12 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
       } else if (savedScreen === 'centering') {
         setShowIntro(false)
         setShowCenteringPage(true)
+      } else if (savedScreen === 'value-forest') {
+        setShowIntro(false)
+        setShowValueForest(true)
+      } else if (savedScreen === 'visualization') {
+        setShowIntro(false)
+        setShowVisualization(true)
       } else if (savedScreen === 'questions') {
         setShowIntro(false)
       }
@@ -159,6 +197,27 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
     setCurrentScreen(template.slug, 'questions')
   }, [template.slug])
 
+  const handleValueForestComplete = useCallback(() => {
+    setShowValueForest(false)
+    // Continue to the questions after Section 5 (Section 6+)
+    // currentIndex is already at section5StartIndex, so just move forward
+    setCurrentScreen(template.slug, 'questions')
+  }, [template.slug])
+
+  const handleValueForestBack = useCallback(() => {
+    // Exit Value Forest and go back to the last Section 4 question
+    setShowValueForest(false)
+    const newIndex = section5StartIndex - 1
+    setCurrentIndex(newIndex)
+    setQuestionIndex(template.slug, newIndex)
+    setCurrentScreen(template.slug, 'questions')
+  }, [template.slug, section5StartIndex])
+
+  const handleVisualizationComplete = useCallback(() => {
+    setShowVisualization(false)
+    setCurrentScreen(template.slug, 'questions')
+  }, [template.slug])
+
   const handleResponseChange = useCallback(
     (value: string) => {
       const questionId = displayQuestions[currentIndex].id
@@ -171,6 +230,25 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
   const handleNext = useCallback(() => {
     if (currentIndex < displayQuestions.length - 1) {
       const newIndex = currentIndex + 1
+
+      // Check if we're entering Section 5 (Value Forest) for Henry's template
+      if (template.slug === 'henry-finkelstein' && newIndex === section5StartIndex) {
+        setShowValueForest(true)
+        setCurrentScreen(template.slug, 'value-forest')
+        setCurrentIndex(newIndex)
+        setQuestionIndex(template.slug, newIndex)
+        return
+      }
+
+      // Check if we're entering the visualization question for Henry's template
+      if (template.slug === 'henry-finkelstein' && newIndex === visualizationQuestionIndex) {
+        setShowVisualization(true)
+        setCurrentScreen(template.slug, 'visualization')
+        setCurrentIndex(newIndex)
+        setQuestionIndex(template.slug, newIndex)
+        return
+      }
+
       setCurrentIndex(newIndex)
       setQuestionIndex(template.slug, newIndex)
     } else {
@@ -179,26 +257,33 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
       flushStorage()
       router.push(`/review/${template.slug}/complete`)
     }
-  }, [template.slug, displayQuestions, currentIndex, router])
+  }, [template.slug, displayQuestions, currentIndex, router, section5StartIndex, visualizationQuestionIndex])
 
   const handlePrevious = useCallback(() => {
     if (currentIndex > 0) {
+      // Check if we're at the first question after Section 5 (Value Forest) for Henry's template
+      // Going back should enter the Value Forest section
+      if (template.slug === 'henry-finkelstein' && currentIndex === section5StartIndex) {
+        setShowValueForest(true)
+        setCurrentScreen(template.slug, 'value-forest')
+        return
+      }
+
       const newIndex = currentIndex - 1
       setCurrentIndex(newIndex)
       setQuestionIndex(template.slug, newIndex)
     }
-  }, [currentIndex, template.slug])
+  }, [currentIndex, template.slug, section5StartIndex])
 
   // Consolidated keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't handle keyboard events on the intro, housekeeping, handwriting, or centering screen
-      if (showIntro || showHousekeeping || showHandwritingPage || showCenteringPage) return
+      // Don't handle keyboard events on special screens (they have their own handlers)
+      if (showIntro || showHousekeeping || showHandwritingPage || showCenteringPage || showValueForest || showVisualization) return
 
       const currentQuestion = displayQuestions[currentIndex]
-      const currentValue = responses[currentQuestion.id] || ''
-      // In handwriting mode, can always proceed
-      const canProceed = reviewMode === 'handwriting' || !currentQuestion.required || currentValue.trim().length > 0
+      // Users can always proceed - no required field validation
+      const canProceed = true
 
       // Handle Enter key (proceed to next question)
       if (e.key === 'Enter') {
@@ -248,7 +333,7 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [showIntro, showHousekeeping, showHandwritingPage, showCenteringPage, reviewMode, currentIndex, displayQuestions, responses, handleNext, handlePrevious])
+  }, [showIntro, showHousekeeping, showHandwritingPage, showCenteringPage, showValueForest, showVisualization, reviewMode, currentIndex, displayQuestions, handleNext, handlePrevious])
 
   // Don't render anything until client-side (localStorage access requires client)
   if (!isClient) {
@@ -291,6 +376,23 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
   // Show centering page for Henry's template
   if (showCenteringPage) {
     return <CenteringPage onBegin={handleCenteringComplete} />
+  }
+
+  // Show Value Forest for Henry's template (Section 5)
+  if (showValueForest) {
+    return (
+      <ValueForestSection
+        templateSlug={template.slug}
+        mode={reviewMode}
+        onComplete={handleValueForestComplete}
+        onBack={handleValueForestBack}
+      />
+    )
+  }
+
+  // Show Visualization intro for Henry's template (Section 7)
+  if (showVisualization) {
+    return <VisualizationPage onBegin={handleVisualizationComplete} />
   }
 
   const currentQuestion = displayQuestions[currentIndex]

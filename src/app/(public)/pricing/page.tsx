@@ -114,7 +114,7 @@ export default function PricingPage() {
                 </Button>
                 <Button asChild variant="outline" className="w-full">
                   <a href={STRIPE_CONFIG.paymentLinks.yearly}>
-                    Subscribe Yearly — Save $10
+                    Subscribe Yearly - Save $10
                   </a>
                 </Button>
               </div>

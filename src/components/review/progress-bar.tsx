@@ -24,8 +24,8 @@ export function ReviewProgressBar({
     ? Math.round((sectionCurrent / sectionTotal) * 100)
     : Math.round((current / total) * 100)
 
-  // Extract just the section title (e.g., "Remember (High Points)" from "Section 2: Remember (High Points)")
-  const displaySectionName = sectionName?.replace(/^Section \d+:\s*/, '') || ''
+  // Display section name as-is (already formatted as "1) Opening", "2) Remember", etc.)
+  const displaySectionName = sectionName || ''
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">

@@ -104,7 +104,7 @@ export default function CompletionPage({
           <Button asChild size="lg" className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
             <Link href="/pricing">
               <Lock className="w-5 h-5 mr-2" />
-              Save to Vault — $5/mo
+              Save to Vault - $5/mo
             </Link>
           </Button>
 

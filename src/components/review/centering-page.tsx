@@ -29,6 +29,9 @@ export function CenteringPage({ onBegin }: CenteringPageProps) {
         <p className="text-lg md:text-xl text-muted-foreground mb-4 font-light">
           Grab your favorite warm beverage in your favorite mug or bowl.
         </p>
+        <p className="text-lg md:text-xl text-muted-foreground mb-4 font-light">
+          Put on your favorite deep focus music.
+        </p>
         <div className="mb-4">
           <p className="text-lg md:text-xl text-muted-foreground font-semibold">
             Take 3 breaths.

@@ -64,22 +64,22 @@ export function HenryIntro({
             {/* The Letter */}
             <div className="prose prose-lg dark:prose-invert mb-10">
               <p className="text-xl leading-relaxed mb-6">
-                Hey, I'm Henry.
+                Hi, I&apos;m Henry.
               </p>
               <p className="leading-relaxed mb-6">
-                You're about to do something most people never make time for: looking honestly at where you've been so you can move forward with clarity.
+                You&apos;re about to do something most people never make time for: honestly evaluating themselves to anchor peace and clarity.
               </p>
               <p className="leading-relaxed mb-6">
-                This isn't about grades or performance reviews. It's about attention—the rare gift of turning toward your own life with curiosity instead of judgment.
+                This isn&apos;t about grades or performance reviews. It&apos;s about attention - the rare gift of turning toward your own life with curiosity instead of judgment.
               </p>
               <p className="leading-relaxed mb-6">
-                I've been doing annual reviews for years, and I've borrowed from the best: Tiago Forte, Sahil Bloom, the Ness Labs crew. What you'll find here is my synthesis—the questions that actually moved the needle for me.
+                I&apos;ve been doing annual reviews for years, and I&apos;ve borrowed from the best: Dr. Anthony Gustin, Tiago Forte, Anne-Laure Le Cunff, TK Krader, and Sahil Bloom. I&apos;ve compiled the questions and the flow that yield the best outcomes for me. I hope it serves you on your path.
               </p>
               <p className="leading-relaxed mb-6">
                 Find a quiet space. Pour yourself something warm. Give yourself permission to go slow.
               </p>
               <p className="leading-relaxed text-muted-foreground">
-                Take a breath. When you're ready, we'll begin.
+                Take a breath. When you&apos;re ready, begin.
               </p>
             </div>
 
@@ -87,11 +87,11 @@ export function HenryIntro({
             <div className="flex items-center gap-6 mb-8 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                <span>~{template.intro.estimatedMinutes} min</span>
+                <span>3-5 hours</span>
               </div>
               <div className="flex items-center gap-2">
                 <ListChecks className="h-4 w-4" />
-                <span>{template.questions.length} questions</span>
+                <span>100+ questions</span>
               </div>
             </div>
 

@@ -29,7 +29,7 @@ export function HandwritingPage({ onContinue }: HandwritingPageProps) {
 
         <div className="prose prose-lg dark:prose-invert mb-8">
           <p className="leading-relaxed mb-4">
-            I do my annual review by hand—pen on paper. There's something about the physical motion
+            I do my annual review by hand - pen on paper. There's something about the physical motion
             that changes how I think. Writing slowly gives me space to pause, to let thoughts fully
             form before committing them to the page.
           </p>
@@ -39,7 +39,7 @@ export function HandwritingPage({ onContinue }: HandwritingPageProps) {
           </p>
           <p className="leading-relaxed text-muted-foreground">
             This two-step process takes more time, but it's how I do my most rigorous thinking.
-            You're welcome to follow along digitally—this tool works either way.
+            You're welcome to follow along digitally - this tool works either way.
           </p>
         </div>
 
