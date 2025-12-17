@@ -20,24 +20,7 @@ async function generateNonce(): Promise<{ nonce: string; hashedNonce: string }> 
   return { nonce, hashedNonce }
 }
 
-declare global {
-  interface Window {
-    google?: {
-      accounts: {
-        id: {
-          initialize: (config: {
-            client_id: string
-            callback: (response: { credential: string }) => void
-            nonce: string
-            use_fedcm_for_prompt?: boolean
-          }) => void
-          prompt: (callback?: (notification: { isNotDisplayed: () => boolean; isSkippedMoment: () => boolean }) => void) => void
-          cancel: () => void
-        }
-      }
-    }
-  }
-}
+// Google Identity Services types are declared in src/types/google-identity.d.ts
 
 interface GoogleOneTapProps {
   redirectTo?: string

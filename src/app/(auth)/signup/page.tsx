@@ -17,6 +17,7 @@ import { DividerWithText } from '@/components/ui/divider-with-text'
 import { GoogleIcon } from '@/components/icons/google-icon'
 import { useOAuthLogin } from '@/hooks/use-oauth-login'
 import { GoogleOneTap } from '@/components/auth/google-one-tap'
+import { GoogleSignInButton } from '@/components/auth/google-signin-button'
 
 function SignupForm() {
   const searchParams = useSearchParams()
@@ -146,16 +147,24 @@ function SignupForm() {
 
           <DividerWithText>Or continue with</DividerWithText>
 
-          <LoadingButton
-            variant="outline"
-            className="w-full"
-            onClick={signInWithGoogle}
-            loading={isOAuthLoading}
-            disabled={isLoading}
-          >
-            <GoogleIcon className="mr-2 h-4 w-4" />
-            Google
-          </LoadingButton>
+          {/* Official Google Sign-In button with personalization */}
+          <div className="flex justify-center">
+            <GoogleSignInButton redirectTo={redirectTo} text="signup_with" width={350} />
+          </div>
+
+          {/* Fallback button for when GIS doesn't load */}
+          <noscript>
+            <LoadingButton
+              variant="outline"
+              className="w-full"
+              onClick={signInWithGoogle}
+              loading={isOAuthLoading}
+              disabled={isLoading}
+            >
+              <GoogleIcon className="mr-2 h-4 w-4" />
+              Google
+            </LoadingButton>
+          </noscript>
 
           <p className="text-center text-sm text-muted-foreground mt-6">
             Already have an account?{' '}
