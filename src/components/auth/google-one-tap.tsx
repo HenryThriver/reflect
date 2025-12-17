@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useCallback, useRef } from 'react'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 // Generate a secure nonce for OneTap
@@ -27,7 +26,6 @@ interface GoogleOneTapProps {
 }
 
 export function GoogleOneTap({ redirectTo = '/dashboard' }: GoogleOneTapProps) {
-  const router = useRouter()
   const nonceRef = useRef<string | null>(null)
   const initializedRef = useRef(false)
 
@@ -45,9 +43,9 @@ export function GoogleOneTap({ redirectTo = '/dashboard' }: GoogleOneTapProps) {
       return
     }
 
-    router.push(redirectTo)
-    router.refresh()
-  }, [router, redirectTo])
+    // Use hard redirect for more reliable navigation after auth state change
+    window.location.href = redirectTo
+  }, [redirectTo])
 
   useEffect(() => {
     // Prevent double initialization in strict mode

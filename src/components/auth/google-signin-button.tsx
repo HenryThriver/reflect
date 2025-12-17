@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 // Generate a secure nonce for the button flow
@@ -36,7 +35,6 @@ export function GoogleSignInButton({
   size = 'large',
   width = 300,
 }: GoogleSignInButtonProps) {
-  const router = useRouter()
   const buttonRef = useRef<HTMLDivElement>(null)
   const nonceRef = useRef<string | null>(null)
   const initializedRef = useRef(false)
@@ -56,10 +54,10 @@ export function GoogleSignInButton({
         return
       }
 
-      router.push(redirectTo)
-      router.refresh()
+      // Use hard redirect for more reliable navigation after auth state change
+      window.location.href = redirectTo
     },
-    [router, redirectTo]
+    [redirectTo]
   )
 
   useEffect(() => {
