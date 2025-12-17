@@ -14,6 +14,8 @@ import { ErrorAlert } from '@/components/ui/error-alert'
 import { DividerWithText } from '@/components/ui/divider-with-text'
 import { GoogleIcon } from '@/components/icons/google-icon'
 import { useOAuthLogin } from '@/hooks/use-oauth-login'
+import { GoogleOneTap } from '@/components/auth/google-one-tap'
+import { GoogleSignInButton } from '@/components/auth/google-signin-button'
 
 function LoginForm() {
   const router = useRouter()
@@ -52,6 +54,7 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
+      <GoogleOneTap redirectTo={redirectTo} />
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Welcome back</CardTitle>
@@ -92,16 +95,24 @@ function LoginForm() {
 
           <DividerWithText>Or continue with</DividerWithText>
 
-          <LoadingButton
-            variant="outline"
-            className="w-full"
-            onClick={signInWithGoogle}
-            loading={isOAuthLoading}
-            disabled={isLoading}
-          >
-            <GoogleIcon className="mr-2 h-4 w-4" />
-            Google
-          </LoadingButton>
+          {/* Official Google Sign-In button with personalization (shows your profile when signed in) */}
+          <div className="flex justify-center">
+            <GoogleSignInButton redirectTo={redirectTo} width={350} />
+          </div>
+
+          {/* Fallback button for when GIS doesn't load */}
+          <noscript>
+            <LoadingButton
+              variant="outline"
+              className="w-full"
+              onClick={signInWithGoogle}
+              loading={isOAuthLoading}
+              disabled={isLoading}
+            >
+              <GoogleIcon className="mr-2 h-4 w-4" />
+              Google
+            </LoadingButton>
+          </noscript>
 
           <p className="text-center text-sm text-muted-foreground mt-6">
             Don&apos;t have an account?{' '}

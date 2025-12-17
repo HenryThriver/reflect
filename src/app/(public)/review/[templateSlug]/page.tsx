@@ -22,5 +22,5 @@ export default async function ReviewPage({
     data: { user },
   } = await supabase.auth.getUser()
 
-  return <ReviewFlow template={template} isAuthenticated={!!user} />
+  return <ReviewFlow template={template} user={user ? { id: user.id } : null} />
 }

@@ -12,6 +12,8 @@ import {
   setReviewMode as saveReviewMode,
   completeGuestReview,
   flushStorage,
+  saveAuthenticatedReview,
+  loadAuthenticatedReview,
   type ReviewMode,
 } from '@/lib/guest-storage'
 import { TemplateIntro } from '@/components/templates/template-intro'
@@ -43,7 +45,7 @@ const VISUALIZATION_QUESTION_ID = 'future-self-message'
 
 interface ReviewFlowProps {
   template: ReviewTemplate
-  isAuthenticated?: boolean
+  user?: { id: string } | null
 }
 
 // Screen state as discriminated union instead of multiple booleans
@@ -56,7 +58,7 @@ type ScreenState =
   | { screen: 'value-forest' }
   | { screen: 'visualization' }
 
-export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProps) {
+export function ReviewFlow({ template, user }: ReviewFlowProps) {
   const router = useRouter()
   const [screenState, setScreenState] = useState<ScreenState>({ screen: 'intro' })
   const [reviewMode, setReviewMode] = useState<ReviewMode>('digital')
@@ -112,27 +114,47 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
     }
   }, [displayQuestions, currentIndex])
 
-  // Initialize from localStorage
+  // Initialize from database (authenticated) or localStorage (guest)
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional SSR hydration pattern
     setIsClient(true)
-    const existingReview = getGuestReview(template.slug)
-    if (existingReview) {
-      setResponses(existingReview.responses)
-      setCurrentIndex(existingReview.currentQuestionIndex)
-      // Restore review mode
-      if (existingReview.reviewMode) {
-        setReviewMode(existingReview.reviewMode)
+
+    async function loadReview() {
+      // Try database first for authenticated users
+      if (user?.id) {
+        const dbReview = await loadAuthenticatedReview(
+          user.id,
+          template.slug,
+          new Date().getFullYear()
+        )
+        if (dbReview) {
+          setResponses(dbReview.responses)
+          setCurrentIndex(dbReview.currentQuestionIndex)
+          return
+        }
       }
 
-      // Restore screen state - FlowScreen and ScreenState.screen are compatible
-      const savedScreen = existingReview.currentScreen || 'intro'
-      if (savedScreen !== 'intro') {
-        setScreenState({ screen: savedScreen })
+      // Fall back to localStorage for guests (or if no DB data found)
+      const existingReview = getGuestReview(template.slug)
+      if (existingReview) {
+        setResponses(existingReview.responses)
+        setCurrentIndex(existingReview.currentQuestionIndex)
+        // Restore review mode
+        if (existingReview.reviewMode) {
+          setReviewMode(existingReview.reviewMode)
+        }
+
+        // Restore screen state - FlowScreen and ScreenState.screen are compatible
+        const savedScreen = existingReview.currentScreen || 'intro'
+        if (savedScreen !== 'intro') {
+          setScreenState({ screen: savedScreen })
+        }
+        // 'intro' is already the default state
       }
-      // 'intro' is already the default state
     }
-  }, [template.slug])
+
+    loadReview()
+  }, [template.slug, user?.id])
 
   const handleStart = useCallback(() => {
     const existing = getGuestReview(template.slug)
@@ -208,10 +230,24 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
   const handleResponseChange = useCallback(
     (value: string) => {
       const questionId = displayQuestions[currentIndex].id
-      setResponses((prev) => ({ ...prev, [questionId]: value }))
-      saveGuestResponse(template.slug, questionId, value)
+      const newResponses = { ...responses, [questionId]: value }
+      setResponses(newResponses)
+
+      if (user?.id) {
+        // Save to database for authenticated users
+        saveAuthenticatedReview(
+          user.id,
+          template.slug,
+          new Date().getFullYear(),
+          newResponses,
+          currentIndex
+        )
+      } else {
+        // Save to localStorage for guests
+        saveGuestResponse(template.slug, questionId, value)
+      }
     },
-    [template.slug, displayQuestions, currentIndex]
+    [template.slug, displayQuestions, currentIndex, responses, user]
   )
 
   const handleNext = useCallback(() => {
@@ -329,7 +365,7 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
             template={template}
             onStart={handleStart}
             hasExistingProgress={Object.keys(responses).length > 0}
-            isAuthenticated={isAuthenticated}
+            isAuthenticated={!!user}
           />
         )
       }
@@ -338,7 +374,7 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
           template={template}
           onStart={handleStart}
           hasExistingProgress={Object.keys(responses).length > 0}
-          isAuthenticated={isAuthenticated}
+          isAuthenticated={!!user}
         />
       )
 
