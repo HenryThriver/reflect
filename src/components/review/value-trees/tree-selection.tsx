@@ -58,8 +58,35 @@ export function TreeSelection({
     onSelectionChange([])
   }
 
+  // Validation constants for custom tree names
+  const MAX_NAME_LENGTH = 50
+  const MIN_NAME_LENGTH = 2
+
+  // Validate custom tree name
+  const validateCustomName = (name: string): string | null => {
+    const trimmed = name.trim()
+    if (trimmed.length < MIN_NAME_LENGTH) {
+      return `Name must be at least ${MIN_NAME_LENGTH} characters`
+    }
+    if (trimmed.length > MAX_NAME_LENGTH) {
+      return `Name must be less than ${MAX_NAME_LENGTH} characters`
+    }
+    // Check for duplicate names (case-insensitive)
+    const isDuplicate = allTrees.some(
+      (t) => t.name.toLowerCase() === trimmed.toLowerCase()
+    )
+    if (isDuplicate) {
+      return 'A tree with this name already exists'
+    }
+    return null
+  }
+
+  const customNameError = customName ? validateCustomName(customName) : null
+  const isCustomNameValid = customName.trim().length >= MIN_NAME_LENGTH && !customNameError
+
   const handleAddCustomTree = () => {
-    if (!customName.trim()) return
+    const error = validateCustomName(customName)
+    if (error) return
 
     const newTree: ValueTree = {
       id: generateCustomTreeId(customName),
@@ -206,11 +233,14 @@ export function TreeSelection({
               />
             </div>
           </div>
+          {customNameError && (
+            <p className="text-sm text-destructive">{customNameError}</p>
+          )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCustomModal(false)}>
               Cancel
             </Button>
-            <Button onClick={handleAddCustomTree} disabled={!customName.trim()}>
+            <Button onClick={handleAddCustomTree} disabled={!isCustomNameValid}>
               Add Tree
             </Button>
           </DialogFooter>

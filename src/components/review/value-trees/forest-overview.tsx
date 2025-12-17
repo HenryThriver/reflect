@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { ChevronUp, ChevronDown, ArrowLeft, Sparkles } from 'lucide-react'
+import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
 import {
   Tooltip,
   TooltipContent,
@@ -11,31 +12,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
-import { OVERVIEW_QUESTIONS } from '@/lib/value-trees'
-import type { ValueTree, ValueTreeResponse, SatisfactionScore } from '@/lib/value-trees'
-
-const SATISFACTION_LABELS: Record<SatisfactionScore, string> = {
-  1: 'Extremely frustrated',
-  2: 'Frustrated',
-  3: 'Neutral',
-  4: 'Pleased',
-  5: 'Extremely pleased',
-}
-
-function SatisfactionDots({ score }: { score?: SatisfactionScore }) {
-  if (!score) return null
-  return (
-    <div className="flex items-center gap-1">
-      {[1, 2, 3, 4, 5].map((n) => (
-        <span
-          key={n}
-          className={cn('w-2 h-2 rounded-full', n <= score ? 'bg-primary' : 'bg-muted')}
-        />
-      ))}
-      <span className="text-xs text-muted-foreground ml-2">{SATISFACTION_LABELS[score]}</span>
-    </div>
-  )
-}
+import { OVERVIEW_QUESTIONS, SATISFACTION_LABELS } from '@/lib/value-trees'
+import { SatisfactionDots } from '@/components/ui/satisfaction-dots'
+import type { ValueTree, ValueTreeResponse } from '@/lib/value-trees'
 
 interface ForestOverviewProps {
   trees: ValueTree[]
@@ -87,61 +66,32 @@ export function ForestOverview({
     }
   }, [currentQuestionIndex, isHandwriting, showTable])
 
-  // Keyboard handling
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (showTable) {
-        // Table view: Enter to continue
-        if (e.key === 'Enter') {
-          e.preventDefault()
-          setShowTable(false)
-        }
-        return
-      }
-
-      if (isHandwriting) {
-        if (e.key === 'Enter') {
-          e.preventDefault()
-          if (isLastQuestion) {
-            onComplete()
-          } else {
-            onNext()
-          }
-        }
-      } else {
-        // Textarea: Cmd/Ctrl + Enter to proceed
-        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-          e.preventDefault()
-          if (isLastQuestion) {
-            onComplete()
-          } else {
-            onNext()
-          }
-        }
-      }
-
-      // Arrow navigation
-      if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-        e.preventDefault()
-        if (isFirstQuestion) {
-          setShowTable(true)
-        } else {
-          onPrevious()
-        }
-      }
-      if (e.key === 'ArrowDown' || e.key === 'PageDown') {
-        e.preventDefault()
-        if (isLastQuestion) {
-          onComplete()
-        } else {
-          onNext()
-        }
-      }
+  // Custom navigation handlers that account for table state and first/last question
+  const handleNavNext = useCallback(() => {
+    if (showTable) {
+      setShowTable(false)
+    } else if (isLastQuestion) {
+      onComplete()
+    } else {
+      onNext()
     }
+  }, [showTable, isLastQuestion, onComplete, onNext])
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [showTable, isHandwriting, isFirstQuestion, isLastQuestion, onNext, onPrevious, onComplete])
+  const handleNavPrevious = useCallback(() => {
+    if (isFirstQuestion) {
+      setShowTable(true)
+    } else {
+      onPrevious()
+    }
+  }, [isFirstQuestion, onPrevious])
+
+  // Keyboard navigation
+  useKeyboardNavigation({
+    onNext: handleNavNext,
+    onPrevious: handleNavPrevious,
+    enterToAdvance: showTable || isHandwriting, // Enter advances in table view or handwriting mode
+    enabled: true,
+  })
 
   // If we're showing the table (before questions)
   if (showTable) {
@@ -185,7 +135,7 @@ export function ForestOverview({
                     )}
                   </div>
                   <div className="w-40">
-                    <SatisfactionDots score={response?.satisfaction} />
+                    <SatisfactionDots score={response?.satisfaction} labels={SATISFACTION_LABELS as Record<number, string>} />
                   </div>
                 </div>
               )

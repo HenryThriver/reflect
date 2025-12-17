@@ -1,4 +1,13 @@
-import type { ValueTree, TreeQuestion, OverviewQuestion } from './types'
+import type { ValueTree, TreeQuestion, OverviewQuestion, SatisfactionScore } from './types'
+
+// Shared satisfaction labels - used in tree-deep-dive, forest-overview, and tree-ranking
+export const SATISFACTION_LABELS: Record<SatisfactionScore, string> = {
+  1: 'Extremely frustrated',
+  2: 'Frustrated',
+  3: 'Neutral',
+  4: 'Pleased',
+  5: 'Extremely pleased',
+}
 
 export const DEFAULT_TREES: ValueTree[] = [
   { id: 'health-body', name: 'Health & Body', description: 'Physical health, fitness, energy, nutrition, sleep', isCustom: false },

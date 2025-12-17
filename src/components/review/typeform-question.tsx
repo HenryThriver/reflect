@@ -27,17 +27,32 @@ function parseInlineMarkdown(text: string, keyPrefix: string): React.ReactNode[]
     const [, linkText, linkUrl, boldText, plainText] = match
 
     if (linkText && linkUrl) {
-      parts.push(
-        <a
-          key={`${keyPrefix}-${keyIndex++}`}
-          href={linkUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary underline hover:text-primary/80"
-        >
-          {linkText}
-        </a>
-      )
+      // Validate URL protocol to prevent XSS attacks (javascript:, data:, blob: URIs)
+      let isSafeUrl = false
+      try {
+        const parsed = new URL(linkUrl, window.location.href)
+        isSafeUrl = ['http:', 'https:', 'mailto:'].includes(parsed.protocol)
+      } catch {
+        // Invalid URL - treat as unsafe
+        isSafeUrl = false
+      }
+
+      if (isSafeUrl) {
+        parts.push(
+          <a
+            key={`${keyPrefix}-${keyIndex++}`}
+            href={linkUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary underline hover:text-primary/80"
+          >
+            {linkText}
+          </a>
+        )
+      } else {
+        // Render as plain text if URL is not safe
+        parts.push(<span key={`${keyPrefix}-${keyIndex++}`}>{linkText}</span>)
+      }
     } else if (boldText) {
       parts.push(<strong key={`${keyPrefix}-${keyIndex++}`}>{boldText}</strong>)
     } else if (plainText) {
@@ -112,9 +127,6 @@ export function TypeformQuestion({
       return () => clearTimeout(timer)
     }
   }, [question.id, isHandwriting])
-
-  // Users can always proceed - no required field validation
-  const canProceed = true
 
   return (
     <div className="min-h-screen flex flex-col justify-center px-6 py-12 max-w-3xl mx-auto">
@@ -290,13 +302,11 @@ export function TypeformQuestion({
             variant="outline"
             size="icon"
             onClick={onNext}
-            disabled={!canProceed}
           >
             <ChevronDown className="h-4 w-4" />
           </Button>
           <Button
             onClick={onNext}
-            disabled={!canProceed}
             className="ml-2"
           >
             {isLast ? 'Finish' : isHandwriting ? 'Next Question' : 'OK'}

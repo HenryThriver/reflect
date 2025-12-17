@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { ChevronUp } from 'lucide-react'
+import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
 
 interface ForestIntroProps {
   onContinue: () => void
@@ -10,22 +10,11 @@ interface ForestIntroProps {
 }
 
 export function ForestIntro({ onContinue, onBack }: ForestIntroProps) {
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        e.preventDefault()
-        onContinue()
-      }
-      if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-        e.preventDefault()
-        onBack()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [onContinue, onBack])
+  useKeyboardNavigation({
+    onNext: onContinue,
+    onPrevious: onBack,
+    enterToAdvance: true,
+  })
 
   return (
     <div className="min-h-screen flex flex-col justify-center px-6 py-12 max-w-2xl mx-auto">

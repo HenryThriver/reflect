@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
 import {
   DndContext,
   closestCenter,
@@ -21,35 +21,9 @@ import { CSS } from '@dnd-kit/utilities'
 import { Button } from '@/components/ui/button'
 import { ChevronUp, ChevronDown, ArrowLeft, GripVertical } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { SatisfactionDots } from '@/components/ui/satisfaction-dots'
+import { SATISFACTION_LABELS } from '@/lib/value-trees'
 import type { ValueTree, ValueTreeResponse, SatisfactionScore } from '@/lib/value-trees'
-
-const SATISFACTION_LABELS: Record<SatisfactionScore, string> = {
-  1: 'Extremely frustrated',
-  2: 'Frustrated',
-  3: 'Neutral',
-  4: 'Pleased',
-  5: 'Extremely pleased',
-}
-
-function SatisfactionDots({ score }: { score?: SatisfactionScore }) {
-  if (!score) return null
-  return (
-    <div className="flex items-center gap-1">
-      {[1, 2, 3, 4, 5].map((n) => (
-        <span
-          key={n}
-          className={cn(
-            'w-2 h-2 rounded-full',
-            n <= score ? 'bg-primary' : 'bg-muted'
-          )}
-        />
-      ))}
-      <span className="text-xs text-muted-foreground ml-1">
-        {SATISFACTION_LABELS[score]}
-      </span>
-    </div>
-  )
-}
 
 interface SortableTreeItemProps {
   tree: ValueTree
@@ -117,7 +91,7 @@ function SortableTreeItem({
         </div>
         {response?.satisfaction && (
           <div className="mt-1">
-            <SatisfactionDots score={response.satisfaction} />
+            <SatisfactionDots score={response.satisfaction} labels={SATISFACTION_LABELS as Record<number, string>} />
           </div>
         )}
       </div>
@@ -196,17 +170,10 @@ export function TreeRanking({
   }
 
   // Keyboard navigation for ranking
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        e.preventDefault()
-        onContinue()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [onContinue])
+  useKeyboardNavigation({
+    onNext: onContinue,
+    enterToAdvance: true,
+  })
 
   // Get tree by ID
   const getTree = (id: string) => trees.find((t) => t.id === id)

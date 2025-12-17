@@ -1,11 +1,14 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react'
+import { ErrorBoundary } from '@/components/ui/error-boundary'
 import { ForestIntro } from './forest-intro'
 import { TreeSelection } from './tree-selection'
 import { TreeDeepDive } from './tree-deep-dive'
-import { TreeRanking } from './tree-ranking'
 import { ForestOverview } from './forest-overview'
+
+// Code-split TreeRanking since it includes the heavy @dnd-kit library
+const TreeRanking = lazy(() => import('./tree-ranking').then(mod => ({ default: mod.TreeRanking })))
 import { ReviewProgressBar } from '@/components/review/progress-bar'
 import {
   getValueForestState,
@@ -62,11 +65,16 @@ export function ValueForestSection({
   }, [state.selectedTreeIds, allTrees])
 
   // Calculate progress percentage
+  // Progress weights represent the relative importance of each phase:
+  // - Selection: 5% (quick phase, just picking trees)
+  // - Deep-dive: 70% (main content, multiple questions per tree)
+  // - Ranking: 10% (single drag-and-drop interaction)
+  // - Overview: 15% (final reflection questions)
   const progressPercentage = useMemo(() => {
-    const SELECTION_WEIGHT = 5
-    const DEEP_DIVE_WEIGHT = 70
-    const RANKING_WEIGHT = 10
-    const OVERVIEW_WEIGHT = 15
+    const SELECTION_WEIGHT = 5   // 5% for tree selection
+    const DEEP_DIVE_WEIGHT = 70  // 70% for answering questions about each tree
+    const RANKING_WEIGHT = 10    // 10% for priority ranking
+    const OVERVIEW_WEIGHT = 15   // 15% for overview reflections
 
     if (state.phase === 'selection') return 0
     if (state.phase === 'ranking') return SELECTION_WEIGHT + DEEP_DIVE_WEIGHT
@@ -77,7 +85,7 @@ export function ValueForestSection({
       )
     }
 
-    // Deep-dive
+    // Deep-dive phase
     if (selectedTrees.length === 0) return SELECTION_WEIGHT
     const totalQuestions = selectedTrees.length * TREE_QUESTIONS.length
     const completedQuestions =
@@ -161,9 +169,9 @@ export function ValueForestSection({
         return { ...prev, currentQuestionIndex: nextQuestionIndex }
       }
 
-      // Move to next tree
+      // Move to next tree - use selectedTreeIds.length from prev state to avoid stale closure
       const nextTreeIndex = prev.currentTreeIndex + 1
-      if (nextTreeIndex < selectedTrees.length) {
+      if (nextTreeIndex < prev.selectedTreeIds.length) {
         return {
           ...prev,
           currentTreeIndex: nextTreeIndex,
@@ -177,7 +185,7 @@ export function ValueForestSection({
         phase: 'ranking',
       }
     })
-  }, [selectedTrees.length])
+  }, [])
 
   const handleDeepDivePrevious = useCallback(() => {
     setState((prev) => {
@@ -212,14 +220,20 @@ export function ValueForestSection({
 
   const handleSkipTree = useCallback(() => {
     setState((prev) => {
-      const currentTree = selectedTrees[prev.currentTreeIndex]
+      // Compute selected trees from prev state to avoid stale closure
+      const allTreesLocal = [...DEFAULT_TREES, ...prev.customTrees]
+      const selectedTreesLocal = prev.selectedTreeIds
+        .map((id) => allTreesLocal.find((t) => t.id === id))
+        .filter((t): t is ValueTree => t !== undefined)
+
+      const currentTree = selectedTreesLocal[prev.currentTreeIndex]
       if (!currentTree) return prev
 
       // Mark tree as skipped
       const existingResponse = prev.responses[currentTree.id] || {}
       const nextTreeIndex = prev.currentTreeIndex + 1
 
-      if (nextTreeIndex < selectedTrees.length) {
+      if (nextTreeIndex < selectedTreesLocal.length) {
         return {
           ...prev,
           responses: {
@@ -241,7 +255,7 @@ export function ValueForestSection({
         phase: 'ranking',
       }
     })
-  }, [selectedTrees])
+  }, [])
 
   // Ranking handlers
   const handleRankingChange = useCallback((newRanking: string[]) => {
@@ -260,10 +274,10 @@ export function ValueForestSection({
     setState((prev) => ({
       ...prev,
       phase: 'deep-dive',
-      currentTreeIndex: selectedTrees.length - 1,
+      currentTreeIndex: prev.selectedTreeIds.length - 1,
       currentQuestionIndex: TREE_QUESTIONS.length - 1,
     }))
-  }, [selectedTrees.length])
+  }, [])
 
   // Overview handlers
   const handleOverviewAnswer = useCallback((questionId: string, value: string) => {
@@ -364,14 +378,28 @@ export function ValueForestSection({
       )}
 
       {state.phase === 'ranking' && (
-        <TreeRanking
-          trees={selectedTrees}
-          responses={state.responses}
-          ranking={state.ranking}
-          onRankingChange={handleRankingChange}
-          onContinue={handleRankingContinue}
-          onBack={handleRankingBack}
-        />
+        <ErrorBoundary>
+          <Suspense fallback={
+            <div className="min-h-screen flex flex-col px-6 pt-20 pb-12 max-w-3xl mx-auto animate-pulse">
+              <div className="h-8 w-64 bg-muted rounded mb-4" />
+              <div className="h-4 w-96 bg-muted rounded mb-8" />
+              <div className="space-y-3">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="h-20 bg-muted rounded-lg" />
+                ))}
+              </div>
+            </div>
+          }>
+            <TreeRanking
+            trees={selectedTrees}
+            responses={state.responses}
+            ranking={state.ranking}
+            onRankingChange={handleRankingChange}
+            onContinue={handleRankingContinue}
+            onBack={handleRankingBack}
+          />
+          </Suspense>
+        </ErrorBoundary>
       )}
 
       {state.phase === 'overview' && (

@@ -1,20 +1,13 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { ChevronDown, ChevronUp, SkipForward, Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { TREE_QUESTIONS } from '@/lib/value-trees'
-import type { ValueTree } from '@/lib/value-trees'
-
-const SATISFACTION_LABELS: Record<number, string> = {
-  1: 'Extremely frustrated',
-  2: 'Frustrated',
-  3: 'Neutral',
-  4: 'Pleased',
-  5: 'Extremely pleased',
-}
+import { TREE_QUESTIONS, SATISFACTION_LABELS } from '@/lib/value-trees'
+import type { ValueTree, SatisfactionScore } from '@/lib/value-trees'
+import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
 
 interface TreeDeepDiveProps {
   tree: ValueTree
@@ -71,45 +64,19 @@ export function TreeDeepDive({
     }
   }, [questionIndex, treeIndex, isHandwriting, isScaleQuestion])
 
-  // Keyboard handling
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isHandwriting) {
-        if (e.key === 'Enter') {
-          e.preventDefault()
-          onNext()
-        }
-      } else if (isScaleQuestion) {
-        // Number keys 1-5 select satisfaction
-        if (e.key >= '1' && e.key <= '5') {
-          onAnswer(e.key)
-        }
-        if (e.key === 'Enter') {
-          e.preventDefault()
-          onNext()
-        }
-      } else {
-        // Textarea: Cmd/Ctrl + Enter to proceed
-        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-          e.preventDefault()
-          onNext()
-        }
-      }
+  // Number key handler for scale questions
+  const handleNumberKey = useCallback((num: number) => {
+    onAnswer(String(num))
+  }, [onAnswer])
 
-      // Arrow navigation
-      if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-        e.preventDefault()
-        onPrevious()
-      }
-      if (e.key === 'ArrowDown' || e.key === 'PageDown') {
-        e.preventDefault()
-        onNext()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isHandwriting, isScaleQuestion, onNext, onPrevious, onAnswer])
+  // Keyboard navigation
+  useKeyboardNavigation({
+    onNext,
+    onPrevious,
+    enterToAdvance: isHandwriting || isScaleQuestion, // Enter advances in handwriting mode or scale questions
+    enableNumberKeys: isScaleQuestion && !isHandwriting,
+    onNumberKey: handleNumberKey,
+  })
 
   return (
     <div className="min-h-screen flex flex-col justify-center px-6 py-12 max-w-3xl mx-auto">
@@ -193,7 +160,7 @@ export function TreeDeepDive({
                         : 'text-muted-foreground'
                   )}
                 >
-                  {SATISFACTION_LABELS[num]}
+                  {SATISFACTION_LABELS[num as SatisfactionScore]}
                 </span>
               </button>
             ))}

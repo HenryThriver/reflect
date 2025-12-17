@@ -47,14 +47,19 @@ interface ReviewFlowProps {
   isAuthenticated?: boolean
 }
 
+// Screen state as discriminated union instead of multiple booleans
+type ScreenState =
+  | { screen: 'intro' }
+  | { screen: 'housekeeping' }
+  | { screen: 'handwriting' }
+  | { screen: 'centering' }
+  | { screen: 'questions' }
+  | { screen: 'value-forest' }
+  | { screen: 'visualization' }
+
 export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProps) {
   const router = useRouter()
-  const [showIntro, setShowIntro] = useState(true)
-  const [showHousekeeping, setShowHousekeeping] = useState(false)
-  const [showHandwritingPage, setShowHandwritingPage] = useState(false)
-  const [showCenteringPage, setShowCenteringPage] = useState(false)
-  const [showValueForest, setShowValueForest] = useState(false)
-  const [showVisualization, setShowVisualization] = useState(false)
+  const [screenState, setScreenState] = useState<ScreenState>({ screen: 'intro' })
   const [reviewMode, setReviewMode] = useState<ReviewMode>('digital')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [responses, setResponses] = useState<Record<string, string>>({})
@@ -120,28 +125,12 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
         setReviewMode(existingReview.reviewMode)
       }
 
-      // Restore screen state
+      // Restore screen state - FlowScreen and ScreenState.screen are compatible
       const savedScreen = existingReview.currentScreen || 'intro'
-      if (savedScreen === 'intro') {
-        setShowIntro(true)
-      } else if (savedScreen === 'housekeeping') {
-        setShowIntro(false)
-        setShowHousekeeping(true)
-      } else if (savedScreen === 'handwriting') {
-        setShowIntro(false)
-        setShowHandwritingPage(true)
-      } else if (savedScreen === 'centering') {
-        setShowIntro(false)
-        setShowCenteringPage(true)
-      } else if (savedScreen === 'value-forest') {
-        setShowIntro(false)
-        setShowValueForest(true)
-      } else if (savedScreen === 'visualization') {
-        setShowIntro(false)
-        setShowVisualization(true)
-      } else if (savedScreen === 'questions') {
-        setShowIntro(false)
+      if (savedScreen !== 'intro') {
+        setScreenState({ screen: savedScreen })
       }
+      // 'intro' is already the default state
     }
   }, [template.slug])
 
@@ -150,12 +139,12 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
     if (!existing) {
       startGuestReview(template.slug)
     }
-    setShowIntro(false)
     // For Henry's template, show housekeeping page next
     if (template.slug === 'henry-finkelstein') {
-      setShowHousekeeping(true)
+      setScreenState({ screen: 'housekeeping' })
       setCurrentScreen(template.slug, 'housekeeping')
     } else {
+      setScreenState({ screen: 'questions' })
       setCurrentScreen(template.slug, 'questions')
     }
   }, [template.slug])
@@ -168,10 +157,9 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
         saveGuestResponse(template.slug, questionId, value)
         setResponses((prev) => ({ ...prev, [questionId]: value }))
       })
-      setShowHousekeeping(false)
       // For Henry's template, show handwriting page next
       if (template.slug === 'henry-finkelstein') {
-        setShowHandwritingPage(true)
+        setScreenState({ screen: 'handwriting' })
         setCurrentScreen(template.slug, 'handwriting')
       }
     },
@@ -182,10 +170,9 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
     (mode: ReviewMode) => {
       setReviewMode(mode)
       saveReviewMode(template.slug, mode)
-      setShowHandwritingPage(false)
       // Show centering page next for Henry's template
       if (template.slug === 'henry-finkelstein') {
-        setShowCenteringPage(true)
+        setScreenState({ screen: 'centering' })
         setCurrentScreen(template.slug, 'centering')
       }
     },
@@ -193,12 +180,12 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
   )
 
   const handleCenteringComplete = useCallback(() => {
-    setShowCenteringPage(false)
+    setScreenState({ screen: 'questions' })
     setCurrentScreen(template.slug, 'questions')
   }, [template.slug])
 
   const handleValueForestComplete = useCallback(() => {
-    setShowValueForest(false)
+    setScreenState({ screen: 'questions' })
     // Continue to the questions after Section 5 (Section 6+)
     // currentIndex is already at section5StartIndex, so just move forward
     setCurrentScreen(template.slug, 'questions')
@@ -206,7 +193,7 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
 
   const handleValueForestBack = useCallback(() => {
     // Exit Value Forest and go back to the last Section 4 question
-    setShowValueForest(false)
+    setScreenState({ screen: 'questions' })
     const newIndex = section5StartIndex - 1
     setCurrentIndex(newIndex)
     setQuestionIndex(template.slug, newIndex)
@@ -214,7 +201,7 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
   }, [template.slug, section5StartIndex])
 
   const handleVisualizationComplete = useCallback(() => {
-    setShowVisualization(false)
+    setScreenState({ screen: 'questions' })
     setCurrentScreen(template.slug, 'questions')
   }, [template.slug])
 
@@ -233,7 +220,7 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
 
       // Check if we're entering Section 5 (Value Forest) for Henry's template
       if (template.slug === 'henry-finkelstein' && newIndex === section5StartIndex) {
-        setShowValueForest(true)
+        setScreenState({ screen: 'value-forest' })
         setCurrentScreen(template.slug, 'value-forest')
         setCurrentIndex(newIndex)
         setQuestionIndex(template.slug, newIndex)
@@ -242,7 +229,7 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
 
       // Check if we're entering the visualization question for Henry's template
       if (template.slug === 'henry-finkelstein' && newIndex === visualizationQuestionIndex) {
-        setShowVisualization(true)
+        setScreenState({ screen: 'visualization' })
         setCurrentScreen(template.slug, 'visualization')
         setCurrentIndex(newIndex)
         setQuestionIndex(template.slug, newIndex)
@@ -264,7 +251,7 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
       // Check if we're at the first question after Section 5 (Value Forest) for Henry's template
       // Going back should enter the Value Forest section
       if (template.slug === 'henry-finkelstein' && currentIndex === section5StartIndex) {
-        setShowValueForest(true)
+        setScreenState({ screen: 'value-forest' })
         setCurrentScreen(template.slug, 'value-forest')
         return
       }
@@ -278,12 +265,10 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
   // Consolidated keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't handle keyboard events on special screens (they have their own handlers)
-      if (showIntro || showHousekeeping || showHandwritingPage || showCenteringPage || showValueForest || showVisualization) return
+      // Only handle keyboard events on questions screen (other screens have their own handlers)
+      if (screenState.screen !== 'questions') return
 
       const currentQuestion = displayQuestions[currentIndex]
-      // Users can always proceed - no required field validation
-      const canProceed = true
 
       // Handle Enter key (proceed to next question)
       if (e.key === 'Enter') {
@@ -296,17 +281,13 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
         else if (currentQuestion.type === 'textarea') {
           if (e.metaKey || e.ctrlKey) {
             e.preventDefault()
-            if (canProceed) {
-              handleNext()
-            }
+            handleNext()
           }
         } else {
           // For other input types: Enter without Shift
           if (!e.shiftKey) {
             e.preventDefault()
-            if (canProceed) {
-              handleNext()
-            }
+            handleNext()
           }
         }
       }
@@ -314,9 +295,7 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
       // Handle arrow keys and page up/down (navigation)
       if (e.key === 'ArrowDown' || e.key === 'PageDown') {
         e.preventDefault()
-        if (canProceed) {
-          handleNext()
-        }
+        handleNext()
       }
 
       if (e.key === 'ArrowUp' || e.key === 'PageUp') {
@@ -327,99 +306,100 @@ export function ReviewFlow({ template, isAuthenticated = false }: ReviewFlowProp
       // Handle Escape (go back to intro)
       if (e.key === 'Escape') {
         e.preventDefault()
-        setShowIntro(true)
+        setScreenState({ screen: 'intro' })
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [showIntro, showHousekeeping, showHandwritingPage, showCenteringPage, showValueForest, showVisualization, reviewMode, currentIndex, displayQuestions, handleNext, handlePrevious])
+  }, [screenState.screen, reviewMode, currentIndex, displayQuestions, handleNext, handlePrevious])
 
   // Don't render anything until client-side (localStorage access requires client)
   if (!isClient) {
     return <LoadingState />
   }
 
-  if (showIntro) {
-    // Use custom intro for Henry's template
-    if (template.slug === 'henry-finkelstein') {
+  // Render based on screen state using switch for exhaustive checking
+  switch (screenState.screen) {
+    case 'intro':
+      // Use custom intro for Henry's template
+      if (template.slug === 'henry-finkelstein') {
+        return (
+          <HenryIntro
+            template={template}
+            onStart={handleStart}
+            hasExistingProgress={Object.keys(responses).length > 0}
+            isAuthenticated={isAuthenticated}
+          />
+        )
+      }
       return (
-        <HenryIntro
+        <TemplateIntro
           template={template}
           onStart={handleStart}
           hasExistingProgress={Object.keys(responses).length > 0}
           isAuthenticated={isAuthenticated}
         />
       )
+
+    case 'housekeeping':
+      return <HousekeepingPage onComplete={handleHousekeepingComplete} />
+
+    case 'handwriting':
+      return <HandwritingPage onContinue={handleHandwritingModeSelect} />
+
+    case 'centering':
+      return <CenteringPage onBegin={handleCenteringComplete} />
+
+    case 'value-forest':
+      return (
+        <ValueForestSection
+          templateSlug={template.slug}
+          mode={reviewMode}
+          onComplete={handleValueForestComplete}
+          onBack={handleValueForestBack}
+        />
+      )
+
+    case 'visualization':
+      return <VisualizationPage onBegin={handleVisualizationComplete} />
+
+    case 'questions': {
+      // Bounds check for safety - shouldn't happen in normal flow but guards against bad state
+      const safeIndex = Math.max(0, Math.min(currentIndex, displayQuestions.length - 1))
+      const currentQuestion = displayQuestions[safeIndex]
+      const currentValue = responses[currentQuestion.id] || ''
+
+      return (
+        <>
+          <ReviewProgressBar
+            current={safeIndex + 1}
+            total={displayQuestions.length}
+            templateName={template.name}
+            sectionName={sectionProgress?.sectionName}
+            sectionCurrent={sectionProgress?.sectionCurrent}
+            sectionTotal={sectionProgress?.sectionTotal}
+          />
+          <TypeformQuestion
+            question={currentQuestion}
+            value={currentValue}
+            onChange={handleResponseChange}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            isFirst={safeIndex === 0}
+            isLast={safeIndex === displayQuestions.length - 1}
+            questionNumber={safeIndex + 1}
+            totalQuestions={displayQuestions.length}
+            mode={reviewMode}
+          />
+        </>
+      )
     }
 
-    return (
-      <TemplateIntro
-        template={template}
-        onStart={handleStart}
-        hasExistingProgress={Object.keys(responses).length > 0}
-        isAuthenticated={isAuthenticated}
-      />
-    )
+    default: {
+      // TypeScript exhaustiveness check - this should never execute
+      const _exhaustiveCheck: never = screenState
+      return _exhaustiveCheck
+    }
   }
-
-  // Show housekeeping page for Henry's template
-  if (showHousekeeping) {
-    return <HousekeepingPage onComplete={handleHousekeepingComplete} />
-  }
-
-  // Show handwriting mode selection page for Henry's template
-  if (showHandwritingPage) {
-    return <HandwritingPage onContinue={handleHandwritingModeSelect} />
-  }
-
-  // Show centering page for Henry's template
-  if (showCenteringPage) {
-    return <CenteringPage onBegin={handleCenteringComplete} />
-  }
-
-  // Show Value Forest for Henry's template (Section 5)
-  if (showValueForest) {
-    return (
-      <ValueForestSection
-        templateSlug={template.slug}
-        mode={reviewMode}
-        onComplete={handleValueForestComplete}
-        onBack={handleValueForestBack}
-      />
-    )
-  }
-
-  // Show Visualization intro for Henry's template (Section 7)
-  if (showVisualization) {
-    return <VisualizationPage onBegin={handleVisualizationComplete} />
-  }
-
-  const currentQuestion = displayQuestions[currentIndex]
-  const currentValue = responses[currentQuestion.id] || ''
-
-  return (
-    <>
-      <ReviewProgressBar
-        current={currentIndex + 1}
-        total={displayQuestions.length}
-        templateName={template.name}
-        sectionName={sectionProgress?.sectionName}
-        sectionCurrent={sectionProgress?.sectionCurrent}
-        sectionTotal={sectionProgress?.sectionTotal}
-      />
-      <TypeformQuestion
-        question={currentQuestion}
-        value={currentValue}
-        onChange={handleResponseChange}
-        onNext={handleNext}
-        onPrevious={handlePrevious}
-        isFirst={currentIndex === 0}
-        isLast={currentIndex === displayQuestions.length - 1}
-        questionNumber={currentIndex + 1}
-        totalQuestions={displayQuestions.length}
-        mode={reviewMode}
-      />
-    </>
-  )
 }
