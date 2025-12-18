@@ -342,7 +342,7 @@ export async function loadAuthenticatedReview(
     .eq('user_id', userId)
     .eq('template_slug', templateSlug)
     .eq('year', year)
-    .single()
+    .maybeSingle() // Use maybeSingle instead of single to handle no rows gracefully
 
   if (error || !data) return null
 
