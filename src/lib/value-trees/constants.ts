@@ -1,5 +1,22 @@
 import type { ValueTree, TreeQuestion, OverviewQuestion, SatisfactionScore } from './types'
 
+// =============================================================================
+// Value Forest Constants - Single source of truth for question counting
+// =============================================================================
+
+// Maximum number of trees a user can select for deep-dive
+export const MAX_SELECTED_TREES = 6
+
+// Questions asked for each selected tree during deep-dive phase
+export const TREE_QUESTION_COUNT = 8
+
+// Overview/reflection questions after all trees are processed
+export const OVERVIEW_QUESTION_COUNT = 3
+
+// Total questions in Value Forest section (used for progress tracking)
+// 6 trees × 8 questions + 3 overview = 51
+export const VALUE_FOREST_QUESTION_COUNT = MAX_SELECTED_TREES * TREE_QUESTION_COUNT + OVERVIEW_QUESTION_COUNT
+
 // Shared satisfaction labels - used in tree-deep-dive, forest-overview, and tree-ranking
 export const SATISFACTION_LABELS: Record<SatisfactionScore, string> = {
   1: 'Extremely frustrated',

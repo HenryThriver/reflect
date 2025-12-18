@@ -12,10 +12,14 @@ import {
   setReviewMode as saveReviewMode,
   completeGuestReview,
   flushStorage,
+  flushAuthenticatedStorage,
   saveAuthenticatedReview,
   loadAuthenticatedReview,
+  startAuthenticatedReview,
+  updateAuthenticatedProgress,
   type ReviewMode,
 } from '@/lib/guest-storage'
+import { VALUE_FOREST_QUESTION_COUNT } from '@/lib/value-trees/constants'
 import { TemplateIntro } from '@/components/templates/template-intro'
 import { HenryIntro } from '@/components/templates/henry-intro'
 import { HousekeepingPage } from '@/components/review/housekeeping-page'
@@ -42,6 +46,17 @@ const VALUE_FOREST_SECTION = '4) Value Forest'
 
 // The visualization question ID that triggers the visualization intro page
 const VISUALIZATION_QUESTION_ID = 'future-self-message'
+
+// Helper to compute effective question index for database tracking
+// For questions after Value Forest, adds the VALUE_FOREST_QUESTION_COUNT offset
+function getEffectiveIndex(rawIndex: number, section5StartIndex: number, isHenryTemplate: boolean): number {
+  if (!isHenryTemplate) return rawIndex
+  // If we're past where Value Forest starts, add the offset
+  if (rawIndex >= section5StartIndex) {
+    return rawIndex + VALUE_FOREST_QUESTION_COUNT
+  }
+  return rawIndex
+}
 
 interface ReviewFlowProps {
   template: ReviewTemplate
@@ -192,13 +207,24 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
     (mode: ReviewMode) => {
       setReviewMode(mode)
       saveReviewMode(template.slug, mode)
+
+      // Create database record for authenticated users when they select a mode
+      if (user?.id) {
+        startAuthenticatedReview(
+          user.id,
+          template.slug,
+          new Date().getFullYear(),
+          mode
+        )
+      }
+
       // Show centering page next for Henry's template
       if (template.slug === 'henry-finkelstein') {
         setScreenState({ screen: 'centering' })
         setCurrentScreen(template.slug, 'centering')
       }
     },
-    [template.slug]
+    [template.slug, user]
   )
 
   const handleCenteringComplete = useCallback(() => {
@@ -251,36 +277,59 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
   )
 
   const handleNext = useCallback(() => {
+    const isHenryTemplate = template.slug === 'henry-finkelstein'
+
     if (currentIndex < displayQuestions.length - 1) {
       const newIndex = currentIndex + 1
+      const effectiveIndex = getEffectiveIndex(newIndex, section5StartIndex, isHenryTemplate)
 
       // Check if we're entering Section 5 (Value Forest) for Henry's template
-      if (template.slug === 'henry-finkelstein' && newIndex === section5StartIndex) {
+      if (isHenryTemplate && newIndex === section5StartIndex) {
         setScreenState({ screen: 'value-forest' })
         setCurrentScreen(template.slug, 'value-forest')
         setCurrentIndex(newIndex)
         setQuestionIndex(template.slug, newIndex)
+        // Track progress for authenticated users (both modes)
+        // Note: Value Forest will track its own internal progress
+        if (user?.id) {
+          updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), effectiveIndex)
+        }
         return
       }
 
       // Check if we're entering the visualization question for Henry's template
-      if (template.slug === 'henry-finkelstein' && newIndex === visualizationQuestionIndex) {
+      if (isHenryTemplate && newIndex === visualizationQuestionIndex) {
         setScreenState({ screen: 'visualization' })
         setCurrentScreen(template.slug, 'visualization')
         setCurrentIndex(newIndex)
         setQuestionIndex(template.slug, newIndex)
+        // Track progress for authenticated users (both modes)
+        if (user?.id) {
+          updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), effectiveIndex)
+        }
         return
       }
 
       setCurrentIndex(newIndex)
       setQuestionIndex(template.slug, newIndex)
+      // Track progress for authenticated users (both modes)
+      if (user?.id) {
+        updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), effectiveIndex)
+      }
     } else {
-      // Complete the review and flush storage before navigation
+      // Complete the review - track final question index before navigation
+      const finalEffectiveIndex = getEffectiveIndex(displayQuestions.length - 1, section5StartIndex, isHenryTemplate)
+      if (user?.id) {
+        // Save final progress (total questions answered)
+        updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), finalEffectiveIndex + 1)
+        // Flush authenticated storage before navigation
+        flushAuthenticatedStorage()
+      }
       completeGuestReview(template.slug)
       flushStorage()
       router.push(`/review/${template.slug}/complete`)
     }
-  }, [template.slug, displayQuestions, currentIndex, router, section5StartIndex, visualizationQuestionIndex])
+  }, [template.slug, displayQuestions, currentIndex, router, section5StartIndex, visualizationQuestionIndex, user])
 
   const handlePrevious = useCallback(() => {
     if (currentIndex > 0) {
@@ -394,6 +443,8 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
           mode={reviewMode}
           onComplete={handleValueForestComplete}
           onBack={handleValueForestBack}
+          user={user}
+          baseQuestionIndex={section5StartIndex}
         />
       )
 
@@ -406,11 +457,20 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
       const currentQuestion = displayQuestions[safeIndex]
       const currentValue = responses[currentQuestion.id] || ''
 
+      // For Henry's template, adjust question numbers to include Value Forest
+      const isHenryTemplate = template.slug === 'henry-finkelstein'
+      const isAfterValueForest = isHenryTemplate && safeIndex >= section5StartIndex
+      const valueForestOffset = isAfterValueForest ? VALUE_FOREST_QUESTION_COUNT : 0
+      const adjustedQuestionNumber = safeIndex + 1 + valueForestOffset
+      const adjustedTotal = isHenryTemplate
+        ? displayQuestions.length + VALUE_FOREST_QUESTION_COUNT
+        : displayQuestions.length
+
       return (
         <>
           <ReviewProgressBar
-            current={safeIndex + 1}
-            total={displayQuestions.length}
+            current={adjustedQuestionNumber}
+            total={adjustedTotal}
             templateName={template.name}
             sectionName={sectionProgress?.sectionName}
             sectionCurrent={sectionProgress?.sectionCurrent}
@@ -424,8 +484,8 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
             onPrevious={handlePrevious}
             isFirst={safeIndex === 0}
             isLast={safeIndex === displayQuestions.length - 1}
-            questionNumber={safeIndex + 1}
-            totalQuestions={displayQuestions.length}
+            questionNumber={adjustedQuestionNumber}
+            totalQuestions={adjustedTotal}
             mode={reviewMode}
           />
         </>

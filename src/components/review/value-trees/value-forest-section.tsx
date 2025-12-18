@@ -14,11 +14,13 @@ import {
   getValueForestState,
   saveValueForestState,
   flushStorage,
+  updateAuthenticatedProgress,
 } from '@/lib/guest-storage'
 import {
   DEFAULT_TREES,
   TREE_QUESTIONS,
   OVERVIEW_QUESTIONS,
+  VALUE_FOREST_QUESTION_COUNT,
 } from '@/lib/value-trees'
 import type { ValueTree, ValueForestState, ValueTreeResponse, SatisfactionScore } from '@/lib/value-trees'
 
@@ -27,6 +29,9 @@ interface ValueForestSectionProps {
   mode: 'digital' | 'handwriting'
   onComplete: () => void
   onBack: () => void
+  user?: { id: string } | null
+  /** Base question index where Value Forest starts (for database progress tracking) */
+  baseQuestionIndex: number
 }
 
 export function ValueForestSection({
@@ -34,6 +39,8 @@ export function ValueForestSection({
   mode,
   onComplete,
   onBack,
+  user,
+  baseQuestionIndex,
 }: ValueForestSectionProps) {
   const [state, setState] = useState<ValueForestState>(() =>
     getValueForestState(templateSlug)
@@ -94,6 +101,26 @@ export function ValueForestSection({
 
     return Math.round(SELECTION_WEIGHT + deepDiveProgress * DEEP_DIVE_WEIGHT)
   }, [state, selectedTrees])
+
+  // Calculate effective question index for database tracking
+  // This converts Value Forest progress into a linear question index
+  const effectiveQuestionIndex = useMemo(() => {
+    // We map the percentage progress to a linear index within Value Forest
+    const progressWithinForest = Math.floor((progressPercentage / 100) * VALUE_FOREST_QUESTION_COUNT)
+    return baseQuestionIndex + progressWithinForest
+  }, [progressPercentage, baseQuestionIndex])
+
+  // Track progress to database for authenticated users
+  useEffect(() => {
+    if (isClient && user?.id && state.phase !== 'intro') {
+      updateAuthenticatedProgress(
+        user.id,
+        templateSlug,
+        new Date().getFullYear(),
+        effectiveQuestionIndex
+      )
+    }
+  }, [isClient, user?.id, templateSlug, effectiveQuestionIndex, state.phase])
 
   // Selection handlers
   const handleSelectionChange = useCallback((ids: string[]) => {

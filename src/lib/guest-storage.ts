@@ -1,6 +1,7 @@
 const STORAGE_KEY = 'guest-annual-review'
 const MAX_STORAGE_SIZE = 5 * 1024 * 1024 // 5MB
-const DEBOUNCE_MS = 2000 // Increased from 500ms to reduce write frequency
+const DEBOUNCE_MS = 2000 // Debounce for localStorage writes
+const AUTH_DEBOUNCE_MS = 2000 // Debounce for authenticated database writes
 
 import { z } from 'zod'
 import type { ValueForestState } from '@/lib/value-trees/types'
@@ -305,16 +306,50 @@ if (typeof window !== 'undefined') {
 }
 
 // =============================================================================
-// Authenticated User Storage (Database)
+// Authenticated User Storage (Database) - With Debouncing
 // =============================================================================
 
-export async function saveAuthenticatedReview(
+// Result type for database operations
+export interface DbOperationResult {
+  success: boolean
+  error?: string
+}
+
+// Debounce state for authenticated writes
+let pendingAuthReviewWrite: ReturnType<typeof setTimeout> | null = null
+let pendingAuthReviewData: {
+  userId: string
+  templateSlug: string
+  year: number
+  responses: Record<string, string>
+  currentQuestionIndex: number
+} | null = null
+
+let pendingAuthProgressWrite: ReturnType<typeof setTimeout> | null = null
+let pendingAuthProgressData: {
+  userId: string
+  templateSlug: string
+  year: number
+  currentQuestionIndex: number
+} | null = null
+
+// Event for notifying components of save errors
+function dispatchAuthStorageError(error: string): void {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('auth-storage-error', {
+      detail: { error }
+    }))
+  }
+}
+
+// Internal function that performs the actual database write
+async function _saveAuthenticatedReviewNow(
   userId: string,
   templateSlug: string,
   year: number,
   responses: Record<string, string>,
   currentQuestionIndex: number
-): Promise<void> {
+): Promise<DbOperationResult> {
   const supabase = createClient()
   const { error } = await supabase.from('annual_reviews').upsert({
     user_id: userId,
@@ -327,27 +362,175 @@ export async function saveAuthenticatedReview(
 
   if (error) {
     console.error('Failed to save authenticated review:', error)
+    dispatchAuthStorageError(error.message)
+    return { success: false, error: error.message }
   }
+  return { success: true }
+}
+
+// Debounced version - use this for keystroke-by-keystroke saves
+export function saveAuthenticatedReview(
+  userId: string,
+  templateSlug: string,
+  year: number,
+  responses: Record<string, string>,
+  currentQuestionIndex: number
+): void {
+  // Store the latest data
+  pendingAuthReviewData = { userId, templateSlug, year, responses, currentQuestionIndex }
+
+  // Clear any pending write
+  if (pendingAuthReviewWrite) {
+    clearTimeout(pendingAuthReviewWrite)
+  }
+
+  // Schedule debounced write
+  pendingAuthReviewWrite = setTimeout(async () => {
+    if (pendingAuthReviewData) {
+      await _saveAuthenticatedReviewNow(
+        pendingAuthReviewData.userId,
+        pendingAuthReviewData.templateSlug,
+        pendingAuthReviewData.year,
+        pendingAuthReviewData.responses,
+        pendingAuthReviewData.currentQuestionIndex
+      )
+      pendingAuthReviewData = null
+    }
+    pendingAuthReviewWrite = null
+  }, AUTH_DEBOUNCE_MS)
 }
 
 export async function loadAuthenticatedReview(
   userId: string,
   templateSlug: string,
   year: number
-): Promise<{ responses: Record<string, string>; currentQuestionIndex: number } | null> {
+): Promise<{ responses: Record<string, string>; currentQuestionIndex: number; reviewMode?: ReviewMode } | null> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('annual_reviews')
-    .select('responses, current_question_index')
+    .select('responses, current_question_index, review_mode')
     .eq('user_id', userId)
     .eq('template_slug', templateSlug)
     .eq('year', year)
-    .single()
+    .maybeSingle() // Use maybeSingle instead of single to handle no rows gracefully
 
   if (error || !data) return null
 
   return {
     responses: (data.responses as Record<string, string>) || {},
-    currentQuestionIndex: data.current_question_index || 0
+    currentQuestionIndex: data.current_question_index || 0,
+    reviewMode: (data.review_mode as ReviewMode) || 'digital'
+  }
+}
+
+// Internal function that performs the actual progress update
+async function _updateAuthenticatedProgressNow(
+  userId: string,
+  templateSlug: string,
+  year: number,
+  currentQuestionIndex: number
+): Promise<DbOperationResult> {
+  const supabase = createClient()
+  const { error } = await supabase
+    .from('annual_reviews')
+    .update({ current_question_index: currentQuestionIndex })
+    .eq('user_id', userId)
+    .eq('template_slug', templateSlug)
+    .eq('year', year)
+
+  if (error) {
+    console.error('Failed to update progress:', error)
+    dispatchAuthStorageError(error.message)
+    return { success: false, error: error.message }
+  }
+  return { success: true }
+}
+
+// Debounced version - use this for navigation progress updates
+export function updateAuthenticatedProgress(
+  userId: string,
+  templateSlug: string,
+  year: number,
+  currentQuestionIndex: number
+): void {
+  // Store the latest data
+  pendingAuthProgressData = { userId, templateSlug, year, currentQuestionIndex }
+
+  // Clear any pending write
+  if (pendingAuthProgressWrite) {
+    clearTimeout(pendingAuthProgressWrite)
+  }
+
+  // Schedule debounced write
+  pendingAuthProgressWrite = setTimeout(async () => {
+    if (pendingAuthProgressData) {
+      await _updateAuthenticatedProgressNow(
+        pendingAuthProgressData.userId,
+        pendingAuthProgressData.templateSlug,
+        pendingAuthProgressData.year,
+        pendingAuthProgressData.currentQuestionIndex
+      )
+      pendingAuthProgressData = null
+    }
+    pendingAuthProgressWrite = null
+  }, AUTH_DEBOUNCE_MS)
+}
+
+export async function startAuthenticatedReview(
+  userId: string,
+  templateSlug: string,
+  year: number,
+  reviewMode: ReviewMode
+): Promise<DbOperationResult> {
+  const supabase = createClient()
+  const { error } = await supabase.from('annual_reviews').upsert({
+    user_id: userId,
+    template_slug: templateSlug,
+    year,
+    review_mode: reviewMode,
+    responses: {},
+    current_question_index: 0,
+    status: 'draft'
+  }, { onConflict: 'user_id,template_slug,year' })
+
+  if (error) {
+    console.error('Failed to start authenticated review:', error)
+    dispatchAuthStorageError(error.message)
+    return { success: false, error: error.message }
+  }
+  return { success: true }
+}
+
+// Force immediate flush of any pending authenticated writes (call before navigation)
+export async function flushAuthenticatedStorage(): Promise<void> {
+  // Flush pending review writes
+  if (pendingAuthReviewWrite) {
+    clearTimeout(pendingAuthReviewWrite)
+    pendingAuthReviewWrite = null
+  }
+  if (pendingAuthReviewData) {
+    await _saveAuthenticatedReviewNow(
+      pendingAuthReviewData.userId,
+      pendingAuthReviewData.templateSlug,
+      pendingAuthReviewData.year,
+      pendingAuthReviewData.responses,
+      pendingAuthReviewData.currentQuestionIndex
+    )
+    pendingAuthReviewData = null
+  }
+
+  // Flush pending progress writes
+  if (pendingAuthProgressWrite) {
+    clearTimeout(pendingAuthProgressWrite)
+    pendingAuthProgressWrite = null
+  }
+  if (pendingAuthProgressData) {
+    await _updateAuthenticatedProgressNow(
+      pendingAuthProgressData.userId,
+      pendingAuthProgressData.templateSlug,
+      pendingAuthProgressData.year,
+      pendingAuthProgressData.currentQuestionIndex
+    )
+    pendingAuthProgressData = null
   }
 }

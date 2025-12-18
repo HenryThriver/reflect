@@ -13,3 +13,4 @@ export function createClient() {
 
   return createBrowserClient(supabaseUrl, supabasePublishableKey)
 }
+// Force rebuild Wed Dec 17 14:38:05 PST 2025
