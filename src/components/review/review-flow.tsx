@@ -12,12 +12,14 @@ import {
   setReviewMode as saveReviewMode,
   completeGuestReview,
   flushStorage,
+  flushAuthenticatedStorage,
   saveAuthenticatedReview,
   loadAuthenticatedReview,
   startAuthenticatedReview,
   updateAuthenticatedProgress,
   type ReviewMode,
 } from '@/lib/guest-storage'
+import { VALUE_FOREST_QUESTION_COUNT } from '@/lib/value-trees/constants'
 import { TemplateIntro } from '@/components/templates/template-intro'
 import { HenryIntro } from '@/components/templates/henry-intro'
 import { HousekeepingPage } from '@/components/review/housekeeping-page'
@@ -44,9 +46,6 @@ const VALUE_FOREST_SECTION = '4) Value Forest'
 
 // The visualization question ID that triggers the visualization intro page
 const VISUALIZATION_QUESTION_ID = 'future-self-message'
-
-// Value Forest question count (default 6 trees × 8 questions + 3 overview)
-const VALUE_FOREST_QUESTION_COUNT = 51
 
 // Helper to compute effective question index for database tracking
 // For questions after Value Forest, adds the VALUE_FOREST_QUESTION_COUNT offset
@@ -323,6 +322,8 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
       if (user?.id) {
         // Save final progress (total questions answered)
         updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), finalEffectiveIndex + 1)
+        // Flush authenticated storage before navigation
+        flushAuthenticatedStorage()
       }
       completeGuestReview(template.slug)
       flushStorage()
@@ -443,6 +444,7 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
           onComplete={handleValueForestComplete}
           onBack={handleValueForestBack}
           user={user}
+          baseQuestionIndex={section5StartIndex}
         />
       )
 

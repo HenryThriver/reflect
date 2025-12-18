@@ -5,13 +5,11 @@ import Link from 'next/link'
 import { getTemplate } from '@/lib/templates'
 import { getGuestReview, clearGuestReview } from '@/lib/guest-storage'
 import { generateMarkdown, downloadMarkdown } from '@/lib/markdown/generator'
+import { VALUE_FOREST_QUESTION_COUNT } from '@/lib/value-trees/constants'
 import { Button } from '@/components/ui/button'
 import { LoadingState } from '@/components/ui/loading-state'
 import { DividerWithText } from '@/components/ui/divider-with-text'
 import { Download, Lock, Check, ArrowLeft, Sparkles } from 'lucide-react'
-
-// Value Forest question count (6 trees × 8 questions + 3 overview)
-const VALUE_FOREST_QUESTION_COUNT = 51
 
 export default function CompletionPage({
   params,

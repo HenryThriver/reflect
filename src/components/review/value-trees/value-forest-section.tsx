@@ -20,12 +20,9 @@ import {
   DEFAULT_TREES,
   TREE_QUESTIONS,
   OVERVIEW_QUESTIONS,
+  VALUE_FOREST_QUESTION_COUNT,
 } from '@/lib/value-trees'
 import type { ValueTree, ValueForestState, ValueTreeResponse, SatisfactionScore } from '@/lib/value-trees'
-
-// Base question index where Value Forest starts (after Section 3)
-// This is passed from review-flow.tsx to calculate effective progress
-const VALUE_FOREST_BASE_INDEX = 56 // section5StartIndex in displayQuestions
 
 interface ValueForestSectionProps {
   templateSlug: string
@@ -33,6 +30,8 @@ interface ValueForestSectionProps {
   onComplete: () => void
   onBack: () => void
   user?: { id: string } | null
+  /** Base question index where Value Forest starts (for database progress tracking) */
+  baseQuestionIndex: number
 }
 
 export function ValueForestSection({
@@ -41,6 +40,7 @@ export function ValueForestSection({
   onComplete,
   onBack,
   user,
+  baseQuestionIndex,
 }: ValueForestSectionProps) {
   const [state, setState] = useState<ValueForestState>(() =>
     getValueForestState(templateSlug)
@@ -105,12 +105,10 @@ export function ValueForestSection({
   // Calculate effective question index for database tracking
   // This converts Value Forest progress into a linear question index
   const effectiveQuestionIndex = useMemo(() => {
-    // Value Forest has ~51 questions total (6 trees × 8 questions + 3 overview)
     // We map the percentage progress to a linear index within Value Forest
-    const valueForestQuestionCount = 51
-    const progressWithinForest = Math.floor((progressPercentage / 100) * valueForestQuestionCount)
-    return VALUE_FOREST_BASE_INDEX + progressWithinForest
-  }, [progressPercentage])
+    const progressWithinForest = Math.floor((progressPercentage / 100) * VALUE_FOREST_QUESTION_COUNT)
+    return baseQuestionIndex + progressWithinForest
+  }, [progressPercentage, baseQuestionIndex])
 
   // Track progress to database for authenticated users
   useEffect(() => {
