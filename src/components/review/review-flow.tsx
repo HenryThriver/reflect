@@ -15,6 +15,7 @@ import {
   saveAuthenticatedReview,
   loadAuthenticatedReview,
   startAuthenticatedReview,
+  updateAuthenticatedProgress,
   type ReviewMode,
 } from '@/lib/guest-storage'
 import { TemplateIntro } from '@/components/templates/template-intro'
@@ -43,6 +44,9 @@ const VALUE_FOREST_SECTION = '4) Value Forest'
 
 // The visualization question ID that triggers the visualization intro page
 const VISUALIZATION_QUESTION_ID = 'future-self-message'
+
+// Value Forest question count (default 6 trees × 8 questions + 3 overview)
+const VALUE_FOREST_QUESTION_COUNT = 51
 
 interface ReviewFlowProps {
   template: ReviewTemplate
@@ -272,6 +276,10 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
         setCurrentScreen(template.slug, 'value-forest')
         setCurrentIndex(newIndex)
         setQuestionIndex(template.slug, newIndex)
+        // Track progress for authenticated users (both modes)
+        if (user?.id) {
+          updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), newIndex)
+        }
         return
       }
 
@@ -281,18 +289,26 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
         setCurrentScreen(template.slug, 'visualization')
         setCurrentIndex(newIndex)
         setQuestionIndex(template.slug, newIndex)
+        // Track progress for authenticated users (both modes)
+        if (user?.id) {
+          updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), newIndex)
+        }
         return
       }
 
       setCurrentIndex(newIndex)
       setQuestionIndex(template.slug, newIndex)
+      // Track progress for authenticated users (both modes)
+      if (user?.id) {
+        updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), newIndex)
+      }
     } else {
       // Complete the review and flush storage before navigation
       completeGuestReview(template.slug)
       flushStorage()
       router.push(`/review/${template.slug}/complete`)
     }
-  }, [template.slug, displayQuestions, currentIndex, router, section5StartIndex, visualizationQuestionIndex])
+  }, [template.slug, displayQuestions, currentIndex, router, section5StartIndex, visualizationQuestionIndex, user])
 
   const handlePrevious = useCallback(() => {
     if (currentIndex > 0) {
@@ -418,11 +434,20 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
       const currentQuestion = displayQuestions[safeIndex]
       const currentValue = responses[currentQuestion.id] || ''
 
+      // For Henry's template, adjust question numbers to include Value Forest
+      const isHenryTemplate = template.slug === 'henry-finkelstein'
+      const isAfterValueForest = isHenryTemplate && safeIndex >= section5StartIndex
+      const valueForestOffset = isAfterValueForest ? VALUE_FOREST_QUESTION_COUNT : 0
+      const adjustedQuestionNumber = safeIndex + 1 + valueForestOffset
+      const adjustedTotal = isHenryTemplate
+        ? displayQuestions.length + VALUE_FOREST_QUESTION_COUNT
+        : displayQuestions.length
+
       return (
         <>
           <ReviewProgressBar
-            current={safeIndex + 1}
-            total={displayQuestions.length}
+            current={adjustedQuestionNumber}
+            total={adjustedTotal}
             templateName={template.name}
             sectionName={sectionProgress?.sectionName}
             sectionCurrent={sectionProgress?.sectionCurrent}
@@ -436,8 +461,8 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
             onPrevious={handlePrevious}
             isFirst={safeIndex === 0}
             isLast={safeIndex === displayQuestions.length - 1}
-            questionNumber={safeIndex + 1}
-            totalQuestions={displayQuestions.length}
+            questionNumber={adjustedQuestionNumber}
+            totalQuestions={adjustedTotal}
             mode={reviewMode}
           />
         </>

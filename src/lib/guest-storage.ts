@@ -353,6 +353,25 @@ export async function loadAuthenticatedReview(
   }
 }
 
+export async function updateAuthenticatedProgress(
+  userId: string,
+  templateSlug: string,
+  year: number,
+  currentQuestionIndex: number
+): Promise<void> {
+  const supabase = createClient()
+  const { error } = await supabase
+    .from('annual_reviews')
+    .update({ current_question_index: currentQuestionIndex })
+    .eq('user_id', userId)
+    .eq('template_slug', templateSlug)
+    .eq('year', year)
+
+  if (error) {
+    console.error('Failed to update progress:', error)
+  }
+}
+
 export async function startAuthenticatedReview(
   userId: string,
   templateSlug: string,
@@ -360,12 +379,7 @@ export async function startAuthenticatedReview(
   reviewMode: ReviewMode
 ): Promise<void> {
   const supabase = createClient()
-
-  // Debug: check if we have an authenticated session
-  const { data: { user } } = await supabase.auth.getUser()
-  console.log('[startAuthenticatedReview] Browser auth user:', user?.id, 'Passed userId:', userId)
-
-  const { data, error } = await supabase.from('annual_reviews').upsert({
+  const { error } = await supabase.from('annual_reviews').upsert({
     user_id: userId,
     template_slug: templateSlug,
     year,
@@ -373,11 +387,9 @@ export async function startAuthenticatedReview(
     responses: {},
     current_question_index: 0,
     status: 'draft'
-  }, { onConflict: 'user_id,template_slug,year' }).select()
+  }, { onConflict: 'user_id,template_slug,year' })
 
   if (error) {
     console.error('Failed to start authenticated review:', error)
-  } else {
-    console.log('[startAuthenticatedReview] Success:', data)
   }
 }
