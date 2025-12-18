@@ -48,6 +48,17 @@ const VISUALIZATION_QUESTION_ID = 'future-self-message'
 // Value Forest question count (default 6 trees × 8 questions + 3 overview)
 const VALUE_FOREST_QUESTION_COUNT = 51
 
+// Helper to compute effective question index for database tracking
+// For questions after Value Forest, adds the VALUE_FOREST_QUESTION_COUNT offset
+function getEffectiveIndex(rawIndex: number, section5StartIndex: number, isHenryTemplate: boolean): number {
+  if (!isHenryTemplate) return rawIndex
+  // If we're past where Value Forest starts, add the offset
+  if (rawIndex >= section5StartIndex) {
+    return rawIndex + VALUE_FOREST_QUESTION_COUNT
+  }
+  return rawIndex
+}
+
 interface ReviewFlowProps {
   template: ReviewTemplate
   user?: { id: string } | null
@@ -267,31 +278,35 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
   )
 
   const handleNext = useCallback(() => {
+    const isHenryTemplate = template.slug === 'henry-finkelstein'
+
     if (currentIndex < displayQuestions.length - 1) {
       const newIndex = currentIndex + 1
+      const effectiveIndex = getEffectiveIndex(newIndex, section5StartIndex, isHenryTemplate)
 
       // Check if we're entering Section 5 (Value Forest) for Henry's template
-      if (template.slug === 'henry-finkelstein' && newIndex === section5StartIndex) {
+      if (isHenryTemplate && newIndex === section5StartIndex) {
         setScreenState({ screen: 'value-forest' })
         setCurrentScreen(template.slug, 'value-forest')
         setCurrentIndex(newIndex)
         setQuestionIndex(template.slug, newIndex)
         // Track progress for authenticated users (both modes)
+        // Note: Value Forest will track its own internal progress
         if (user?.id) {
-          updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), newIndex)
+          updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), effectiveIndex)
         }
         return
       }
 
       // Check if we're entering the visualization question for Henry's template
-      if (template.slug === 'henry-finkelstein' && newIndex === visualizationQuestionIndex) {
+      if (isHenryTemplate && newIndex === visualizationQuestionIndex) {
         setScreenState({ screen: 'visualization' })
         setCurrentScreen(template.slug, 'visualization')
         setCurrentIndex(newIndex)
         setQuestionIndex(template.slug, newIndex)
         // Track progress for authenticated users (both modes)
         if (user?.id) {
-          updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), newIndex)
+          updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), effectiveIndex)
         }
         return
       }
@@ -300,10 +315,15 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
       setQuestionIndex(template.slug, newIndex)
       // Track progress for authenticated users (both modes)
       if (user?.id) {
-        updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), newIndex)
+        updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), effectiveIndex)
       }
     } else {
-      // Complete the review and flush storage before navigation
+      // Complete the review - track final question index before navigation
+      const finalEffectiveIndex = getEffectiveIndex(displayQuestions.length - 1, section5StartIndex, isHenryTemplate)
+      if (user?.id) {
+        // Save final progress (total questions answered)
+        updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), finalEffectiveIndex + 1)
+      }
       completeGuestReview(template.slug)
       flushStorage()
       router.push(`/review/${template.slug}/complete`)
@@ -422,6 +442,7 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
           mode={reviewMode}
           onComplete={handleValueForestComplete}
           onBack={handleValueForestBack}
+          user={user}
         />
       )
 

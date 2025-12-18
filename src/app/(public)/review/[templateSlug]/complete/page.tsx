@@ -10,6 +10,9 @@ import { LoadingState } from '@/components/ui/loading-state'
 import { DividerWithText } from '@/components/ui/divider-with-text'
 import { Download, Lock, Check, ArrowLeft, Sparkles } from 'lucide-react'
 
+// Value Forest question count (6 trees × 8 questions + 3 overview)
+const VALUE_FOREST_QUESTION_COUNT = 51
+
 export default function CompletionPage({
   params,
 }: {
@@ -60,6 +63,12 @@ export default function CompletionPage({
   const responses = guestReview?.responses ?? {}
   const answeredCount = Object.values(responses).filter((r) => r.trim()).length
 
+  // For Henry's template, add Value Forest questions to total count
+  const isHenryTemplate = template.slug === 'henry-finkelstein'
+  const totalQuestions = isHenryTemplate
+    ? template.questions.length + VALUE_FOREST_QUESTION_COUNT
+    : template.questions.length
+
   return (
     <div className="min-h-screen flex items-center justify-center p-8">
       <div className="max-w-md w-full text-center space-y-8">
@@ -73,7 +82,7 @@ export default function CompletionPage({
           <h1 className="text-3xl font-bold mb-2">Review Complete!</h1>
           <p className="text-muted-foreground">
             You finished {template.name} and answered {answeredCount} of{' '}
-            {template.questions.length} questions.
+            {totalQuestions} questions.
           </p>
         </div>
 
