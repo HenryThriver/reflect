@@ -334,11 +334,11 @@ export async function loadAuthenticatedReview(
   userId: string,
   templateSlug: string,
   year: number
-): Promise<{ responses: Record<string, string>; currentQuestionIndex: number } | null> {
+): Promise<{ responses: Record<string, string>; currentQuestionIndex: number; reviewMode?: ReviewMode } | null> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('annual_reviews')
-    .select('responses, current_question_index')
+    .select('responses, current_question_index, review_mode')
     .eq('user_id', userId)
     .eq('template_slug', templateSlug)
     .eq('year', year)
@@ -348,6 +348,29 @@ export async function loadAuthenticatedReview(
 
   return {
     responses: (data.responses as Record<string, string>) || {},
-    currentQuestionIndex: data.current_question_index || 0
+    currentQuestionIndex: data.current_question_index || 0,
+    reviewMode: (data.review_mode as ReviewMode) || 'digital'
+  }
+}
+
+export async function startAuthenticatedReview(
+  userId: string,
+  templateSlug: string,
+  year: number,
+  reviewMode: ReviewMode
+): Promise<void> {
+  const supabase = createClient()
+  const { error } = await supabase.from('annual_reviews').upsert({
+    user_id: userId,
+    template_slug: templateSlug,
+    year,
+    review_mode: reviewMode,
+    responses: {},
+    current_question_index: 0,
+    status: 'draft'
+  }, { onConflict: 'user_id,template_slug,year' })
+
+  if (error) {
+    console.error('Failed to start authenticated review:', error)
   }
 }

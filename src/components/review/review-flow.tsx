@@ -14,6 +14,7 @@ import {
   flushStorage,
   saveAuthenticatedReview,
   loadAuthenticatedReview,
+  startAuthenticatedReview,
   type ReviewMode,
 } from '@/lib/guest-storage'
 import { TemplateIntro } from '@/components/templates/template-intro'
@@ -192,13 +193,24 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
     (mode: ReviewMode) => {
       setReviewMode(mode)
       saveReviewMode(template.slug, mode)
+
+      // Create database record for authenticated users when they select a mode
+      if (user?.id) {
+        startAuthenticatedReview(
+          user.id,
+          template.slug,
+          new Date().getFullYear(),
+          mode
+        )
+      }
+
       // Show centering page next for Henry's template
       if (template.slug === 'henry-finkelstein') {
         setScreenState({ screen: 'centering' })
         setCurrentScreen(template.slug, 'centering')
       }
     },
-    [template.slug]
+    [template.slug, user]
   )
 
   const handleCenteringComplete = useCallback(() => {
