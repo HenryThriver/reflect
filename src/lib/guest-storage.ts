@@ -5,6 +5,7 @@ const DEBOUNCE_MS = 2000 // Increased from 500ms to reduce write frequency
 import { z } from 'zod'
 import type { ValueForestState } from '@/lib/value-trees/types'
 import { getDefaultForestState } from '@/lib/value-trees/constants'
+import { createClient } from '@/lib/supabase/client'
 
 export type FlowScreen = 'intro' | 'housekeeping' | 'handwriting' | 'centering' | 'questions' | 'value-forest' | 'visualization'
 export type ReviewMode = 'handwriting' | 'digital'
@@ -301,4 +302,52 @@ if (typeof window !== 'undefined') {
   window.addEventListener('pagehide', () => {
     flushStorage()
   })
+}
+
+// =============================================================================
+// Authenticated User Storage (Database)
+// =============================================================================
+
+export async function saveAuthenticatedReview(
+  userId: string,
+  templateSlug: string,
+  year: number,
+  responses: Record<string, string>,
+  currentQuestionIndex: number
+): Promise<void> {
+  const supabase = createClient()
+  const { error } = await supabase.from('annual_reviews').upsert({
+    user_id: userId,
+    template_slug: templateSlug,
+    year,
+    responses,
+    current_question_index: currentQuestionIndex,
+    status: 'draft'
+  }, { onConflict: 'user_id,template_slug,year' })
+
+  if (error) {
+    console.error('Failed to save authenticated review:', error)
+  }
+}
+
+export async function loadAuthenticatedReview(
+  userId: string,
+  templateSlug: string,
+  year: number
+): Promise<{ responses: Record<string, string>; currentQuestionIndex: number } | null> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('annual_reviews')
+    .select('responses, current_question_index')
+    .eq('user_id', userId)
+    .eq('template_slug', templateSlug)
+    .eq('year', year)
+    .single()
+
+  if (error || !data) return null
+
+  return {
+    responses: (data.responses as Record<string, string>) || {},
+    currentQuestionIndex: data.current_question_index || 0
+  }
 }

@@ -10,7 +10,7 @@ export default function TemplatesPage() {
   const templates = getAllTemplates()
 
   return (
-    <div className="min-h-screen py-12 px-6">
+    <div className="py-12 px-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
@@ -37,6 +37,7 @@ export default function TemplatesPage() {
           </p>
         </div>
       </div>
+
     </div>
   )
 }
