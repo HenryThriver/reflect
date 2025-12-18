@@ -360,7 +360,12 @@ export async function startAuthenticatedReview(
   reviewMode: ReviewMode
 ): Promise<void> {
   const supabase = createClient()
-  const { error } = await supabase.from('annual_reviews').upsert({
+
+  // Debug: check if we have an authenticated session
+  const { data: { user } } = await supabase.auth.getUser()
+  console.log('[startAuthenticatedReview] Browser auth user:', user?.id, 'Passed userId:', userId)
+
+  const { data, error } = await supabase.from('annual_reviews').upsert({
     user_id: userId,
     template_slug: templateSlug,
     year,
@@ -368,9 +373,11 @@ export async function startAuthenticatedReview(
     responses: {},
     current_question_index: 0,
     status: 'draft'
-  }, { onConflict: 'user_id,template_slug,year' })
+  }, { onConflict: 'user_id,template_slug,year' }).select()
 
   if (error) {
     console.error('Failed to start authenticated review:', error)
+  } else {
+    console.log('[startAuthenticatedReview] Success:', data)
   }
 }
