@@ -88,7 +88,7 @@ export function CompletionPageClient({
   const year = new Date().getFullYear()
   const shareText = `I just completed my ${year} annual review. ${totalQuestions} questions. Absolutely worth it.`
 
-  const shareUrl = `https://reflect.thrivinghenry.com/review/${templateSlug}`
+  const shareUrl = 'https://reflect.thrivinghenry.com'
 
   useEffect(() => {
     setIsClient(true)
