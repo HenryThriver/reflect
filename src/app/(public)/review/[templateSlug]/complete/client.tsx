@@ -50,6 +50,46 @@ function getNextQ1CheckinDate(): Date {
 }
 
 // ============================================
+// COUNTDOWN DISPLAY COMPONENT
+// ============================================
+
+interface CountdownDisplayProps {
+  countdown: { days: number; hours: number; minutes: number; seconds: number }
+  size?: 'sm' | 'lg'
+}
+
+function CountdownDisplay({ countdown, size = 'lg' }: CountdownDisplayProps) {
+  const isLarge = size === 'lg'
+  const containerClass = isLarge
+    ? 'flex justify-center gap-3 font-mono text-lg'
+    : 'flex justify-center gap-2 font-mono text-sm'
+  const itemClass = isLarge
+    ? 'bg-background/50 rounded-lg px-3 py-2'
+    : 'bg-muted rounded px-2 py-1'
+
+  return (
+    <div className={containerClass}>
+      <div className={itemClass}>
+        <span className="font-bold text-foreground">{countdown.days}</span>
+        <span className="text-xs text-muted-foreground ml-1">d</span>
+      </div>
+      <div className={itemClass}>
+        <span className="font-bold text-foreground">{countdown.hours.toString().padStart(2, '0')}</span>
+        <span className="text-xs text-muted-foreground ml-1">h</span>
+      </div>
+      <div className={itemClass}>
+        <span className="font-bold text-foreground">{countdown.minutes.toString().padStart(2, '0')}</span>
+        <span className="text-xs text-muted-foreground ml-1">m</span>
+      </div>
+      <div className={itemClass}>
+        <span className="font-bold text-foreground">{countdown.seconds.toString().padStart(2, '0')}</span>
+        <span className="text-xs text-muted-foreground ml-1">s</span>
+      </div>
+    </div>
+  )
+}
+
+// ============================================
 // MAIN COMPONENT
 // ============================================
 
@@ -223,24 +263,7 @@ export function CompletionPageClient({
               <p className="text-muted-foreground mb-4">
                 Your Q1 check-in opens in:
               </p>
-              <div className="flex justify-center gap-3 font-mono text-lg">
-                <div className="bg-background/50 rounded-lg px-3 py-2">
-                  <span className="font-bold text-foreground">{countdown.days}</span>
-                  <span className="text-xs text-muted-foreground ml-1">d</span>
-                </div>
-                <div className="bg-background/50 rounded-lg px-3 py-2">
-                  <span className="font-bold text-foreground">{countdown.hours.toString().padStart(2, '0')}</span>
-                  <span className="text-xs text-muted-foreground ml-1">h</span>
-                </div>
-                <div className="bg-background/50 rounded-lg px-3 py-2">
-                  <span className="font-bold text-foreground">{countdown.minutes.toString().padStart(2, '0')}</span>
-                  <span className="text-xs text-muted-foreground ml-1">m</span>
-                </div>
-                <div className="bg-background/50 rounded-lg px-3 py-2">
-                  <span className="font-bold text-foreground">{countdown.seconds.toString().padStart(2, '0')}</span>
-                  <span className="text-xs text-muted-foreground ml-1">s</span>
-                </div>
-              </div>
+              <CountdownDisplay countdown={countdown} size="lg" />
             </div>
           ) : (
             <ShineBorder
@@ -271,24 +294,7 @@ export function CompletionPageClient({
                 {/* Countdown */}
                 <div className="text-center space-y-2">
                   <p className="text-xs text-muted-foreground">Q1 check-in opens in:</p>
-                  <div className="flex justify-center gap-2 font-mono text-sm">
-                    <div className="bg-muted rounded px-2 py-1">
-                      <span className="font-bold">{countdown.days}</span>
-                      <span className="text-xs text-muted-foreground ml-1">d</span>
-                    </div>
-                    <div className="bg-muted rounded px-2 py-1">
-                      <span className="font-bold">{countdown.hours.toString().padStart(2, '0')}</span>
-                      <span className="text-xs text-muted-foreground ml-1">h</span>
-                    </div>
-                    <div className="bg-muted rounded px-2 py-1">
-                      <span className="font-bold">{countdown.minutes.toString().padStart(2, '0')}</span>
-                      <span className="text-xs text-muted-foreground ml-1">m</span>
-                    </div>
-                    <div className="bg-muted rounded px-2 py-1">
-                      <span className="font-bold">{countdown.seconds.toString().padStart(2, '0')}</span>
-                      <span className="text-xs text-muted-foreground ml-1">s</span>
-                    </div>
-                  </div>
+                  <CountdownDisplay countdown={countdown} size="sm" />
                 </div>
 
                 <div className="flex gap-3">
