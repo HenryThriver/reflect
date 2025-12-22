@@ -71,6 +71,7 @@ export async function checkoutWithStripe(formData?: FormData): Promise<never> {
       customer_email: user.email,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: 'subscription',
+      allow_promotion_codes: true,
       success_url: `${appUrl}/dashboard?subscription=success`,
       cancel_url: `${appUrl}${cancelUrl}`,
       metadata: { user_id: user.id },
