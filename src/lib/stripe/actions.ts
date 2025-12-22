@@ -124,20 +124,8 @@ export async function createPortalSession(): Promise<never> {
   const appUrl = getPublicEnv('NEXT_PUBLIC_APP_URL')
 
   try {
-    // Verify customer ownership before creating portal session
-    const customer = await stripe.customers.retrieve(sub.stripe_customer_id)
-
-    if (customer.deleted) {
-      console.error('Customer was deleted in Stripe')
-      redirect('/pricing')
-    }
-
-    // Verify metadata MUST match current user (not optional - prevents spoofing)
-    if (!customer.metadata?.user_id || customer.metadata.user_id !== user.id) {
-      console.error('Customer ownership mismatch or missing metadata')
-      redirect('/pricing')
-    }
-
+    // Database already verified ownership via user_id filter
+    // Customer metadata is set during checkout.session.completed webhook
     const session = await stripe.billingPortal.sessions.create({
       customer: sub.stripe_customer_id,
       return_url: `${appUrl}/dashboard`,

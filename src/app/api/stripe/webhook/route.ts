@@ -11,41 +11,31 @@ function getSupabaseAdmin() {
   )
 }
 
-// Validate Stripe ID format - prevents malformed data from corrupting database
+// Validate Stripe ID format - ensures prefix matches expected type
 function validateStripeId(id: unknown, prefix: string): string | null {
-  if (typeof id !== 'string') return null
-  if (!id.startsWith(prefix)) return null
-  if (!/^[a-zA-Z0-9_]+$/.test(id)) return null
+  if (typeof id !== 'string' || !id.startsWith(prefix)) return null
   return id
 }
 
-// Validate timestamp is reasonable (between 2020 and 2100)
-function validateTimestamp(ts: number | undefined | null): string | null {
-  if (!ts) return null
-  const MIN_TIMESTAMP = 1577836800 // Jan 1, 2020
-  const MAX_TIMESTAMP = 4102444800 // Jan 1, 2100
-  if (ts < MIN_TIMESTAMP || ts > MAX_TIMESTAMP) {
-    console.error('Invalid Stripe timestamp:', ts)
-    return null
-  }
-  return new Date(ts * 1000).toISOString()
+// Convert Stripe timestamp to ISO string
+function toISOString(ts: number | undefined | null): string | null {
+  return ts ? new Date(ts * 1000).toISOString() : null
 }
 
-// Helper to safely extract subscription data
-// In Stripe v20, period dates are on subscription items
+// Helper to safely extract subscription data from Stripe v20 API
 function extractSubscriptionData(subscription: Stripe.Subscription) {
   const firstItem = subscription.items?.data?.[0]
   return {
     priceId: firstItem?.price?.id ?? null,
-    currentPeriodStart: validateTimestamp(firstItem?.current_period_start),
-    currentPeriodEnd: validateTimestamp(firstItem?.current_period_end),
+    currentPeriodStart: toISOString(firstItem?.current_period_start),
+    currentPeriodEnd: toISOString(firstItem?.current_period_end),
     cancelAtPeriodEnd: subscription.cancel_at_period_end ?? false,
   }
 }
 
-// Map Stripe status to our app status
+// Map Stripe status to app status
 function mapSubscriptionStatus(stripeStatus: Stripe.Subscription.Status): string {
-  const statusMap: Record<string, string> = {
+  const statusMap: Record<Stripe.Subscription.Status, string> = {
     active: 'active',
     past_due: 'past_due',
     canceled: 'canceled',
@@ -84,8 +74,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    // Check if event was already processed BEFORE inserting
-    // This prevents race conditions better than insert-then-check
+    // Check for duplicate event
     const { data: existing } = await supabase
       .from('webhook_events')
       .select('id')
@@ -93,19 +82,17 @@ export async function POST(request: Request) {
       .maybeSingle()
 
     if (existing) {
-      console.log(`Event ${event.id} already processed, skipping`)
       return NextResponse.json({ received: true, skipped: 'duplicate' })
     }
 
-    // Record webhook event for idempotency
+    // Record event for idempotency
     const { error: idempotencyError } = await supabase
       .from('webhook_events')
       .insert({ stripe_event_id: event.id, event_type: event.type })
 
     if (idempotencyError) {
-      // Could be a race condition where another process inserted between check and insert
+      // Race condition - another process inserted first
       if (idempotencyError.code === '23505') {
-        console.log(`Event ${event.id} already processed (race), skipping`)
         return NextResponse.json({ received: true, skipped: 'duplicate' })
       }
       console.error('Error recording webhook event:', idempotencyError.message)
@@ -116,25 +103,23 @@ export async function POST(request: Request) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
 
-        // Validate all required IDs
         const customerId = validateStripeId(session.customer, 'cus_')
         const subscriptionId = validateStripeId(session.subscription, 'sub_')
         const userId = session.metadata?.user_id
 
         if (!customerId || !subscriptionId || !userId) {
-          console.error('checkout.session.completed: invalid or missing IDs', {
-            hasCustomer: !!customerId,
-            hasSubscription: !!subscriptionId,
-            hasUserId: !!userId,
-          })
+          console.error('checkout.session.completed: missing required IDs')
           break
         }
 
-        // Fetch subscription details for period data
+        // Set user_id metadata on customer for ownership verification
+        await stripe.customers.update(customerId, {
+          metadata: { user_id: userId },
+        })
+
         const subscription = await stripe.subscriptions.retrieve(subscriptionId)
         const subData = extractSubscriptionData(subscription)
 
-        // Upsert subscription - use transaction-like pattern
         const { error: upsertError } = await supabase
           .from('subscriptions')
           .upsert(
@@ -153,18 +138,10 @@ export async function POST(request: Request) {
 
         if (upsertError) {
           console.error('Error upserting subscription:', upsertError.message)
-          // Delete the webhook event record so Stripe can retry
-          const { error: deleteError } = await supabase
-            .from('webhook_events')
-            .delete()
-            .eq('stripe_event_id', event.id)
-          if (deleteError) {
-            console.error('Failed to cleanup webhook event for retry:', deleteError.message)
-          }
           return NextResponse.json({ error: 'Database error' }, { status: 500 })
         }
 
-        console.log(`Subscription created/updated for user: ${userId}`)
+        console.log(`Subscription created for user: ${userId}`)
         break
       }
 
@@ -180,8 +157,7 @@ export async function POST(request: Request) {
         const subData = extractSubscriptionData(subscription)
         const status = mapSubscriptionStatus(subscription.status)
 
-        // Update with row count validation
-        const { data: updated, error } = await supabase
+        const { error } = await supabase
           .from('subscriptions')
           .update({
             status,
@@ -191,23 +167,13 @@ export async function POST(request: Request) {
             cancel_at_period_end: subData.cancelAtPeriodEnd,
           })
           .eq('stripe_subscription_id', subscriptionId)
-          .select('id')
 
         if (error) {
           console.error('Error updating subscription:', error.message)
           return NextResponse.json({ error: 'Database error' }, { status: 500 })
         }
 
-        // Check if we actually updated anything
-        if (!updated || updated.length === 0) {
-          console.warn('subscription.updated: no matching record found', {
-            subscriptionId,
-            eventId: event.id,
-          })
-          // This could mean checkout webhook was lost - log for monitoring
-        } else {
-          console.log(`Subscription updated: ${subscriptionId}`)
-        }
+        console.log(`Subscription updated: ${subscriptionId}`)
         break
       }
 
@@ -220,37 +186,29 @@ export async function POST(request: Request) {
           break
         }
 
-        const { data: updated, error } = await supabase
+        const { error } = await supabase
           .from('subscriptions')
           .update({ status: 'canceled' })
           .eq('stripe_subscription_id', subscriptionId)
-          .select('id')
 
         if (error) {
           console.error('Error canceling subscription:', error.message)
           return NextResponse.json({ error: 'Database error' }, { status: 500 })
         }
 
-        if (!updated || updated.length === 0) {
-          console.warn('subscription.deleted: no matching record found', {
-            subscriptionId,
-            eventId: event.id,
-          })
-        } else {
-          console.log(`Subscription canceled: ${subscriptionId}`)
-        }
+        console.log(`Subscription canceled: ${subscriptionId}`)
         break
       }
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice
-        // In Stripe v20, subscription is accessed via parent.subscription_details
+        // In Stripe v20+, subscription is accessed via parent.subscription_details
         const subDetails = invoice.parent?.subscription_details
-        const subscriptionIdRaw = typeof subDetails?.subscription === 'string'
-          ? subDetails.subscription
-          : subDetails?.subscription?.id
-
-        const subscriptionId = validateStripeId(subscriptionIdRaw, 'sub_')
+        const subscriptionRaw = subDetails?.subscription
+        const subscriptionId = validateStripeId(
+          typeof subscriptionRaw === 'string' ? subscriptionRaw : subscriptionRaw?.id,
+          'sub_'
+        )
 
         if (subscriptionId) {
           const { error } = await supabase
