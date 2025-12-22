@@ -194,7 +194,7 @@ export function CompletionPageClient({
             </Button>
 
             <p className="text-sm text-muted-foreground text-center leading-relaxed">
-              Download your answers to keep them forever—or wait until{' '}
+              Download your answers to keep them forever. Or wait until{' '}
               <span className="font-medium text-foreground">{getNextVaultOpenDate()}</span>{' '}
               to rediscover them with fresh eyes.
             </p>
