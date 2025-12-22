@@ -9,7 +9,9 @@ let stripeInstance: Stripe | null = null
  */
 export function getStripe(): Stripe {
   if (!stripeInstance) {
-    stripeInstance = new Stripe(getServerEnv('STRIPE_SECRET_KEY'))
+    stripeInstance = new Stripe(getServerEnv('STRIPE_SECRET_KEY'), {
+      apiVersion: '2025-11-17.clover',
+    })
   }
   return stripeInstance
 }

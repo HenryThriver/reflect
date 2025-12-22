@@ -148,7 +148,7 @@ export async function POST(request: Request) {
               current_period_end: subData.currentPeriodEnd,
               cancel_at_period_end: subData.cancelAtPeriodEnd,
             },
-            { onConflict: 'user_id' }
+            { onConflict: 'stripe_subscription_id' }
           )
 
         if (upsertError) {
