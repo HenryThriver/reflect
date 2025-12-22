@@ -40,16 +40,18 @@ function getNextVaultOpenDate(): string {
 function getNextCheckinDate(): Date {
   const now = new Date()
   const year = now.getFullYear()
+  // Q1: Mar 24, Q2: Jun 24, Q3: Sep 24, Q4: Dec 24
   const checkinDates = [
-    new Date(year, 3, 1),
-    new Date(year, 6, 1),
-    new Date(year, 9, 1),
-    new Date(year + 1, 0, 1),
+    new Date(year, 2, 24), // March 24
+    new Date(year, 5, 24), // June 24
+    new Date(year, 8, 24), // September 24
+    new Date(year, 11, 24), // December 24
+    new Date(year + 1, 2, 24), // Next year March 24
   ]
   for (const date of checkinDates) {
     if (date > now) return date
   }
-  return new Date(year + 1, 3, 1)
+  return new Date(year + 1, 2, 24)
 }
 
 // ============================================
@@ -71,7 +73,7 @@ export function CompletionPageClient({
   const [guestReview, setGuestReview] =
     useState<ReturnType<typeof getGuestReview>>(null)
   const [isClient, setIsClient] = useState(false)
-  const [countdown, setCountdown] = useState({ days: 0, hours: 0 })
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
 
   const error = searchParams.get('error')
   const errorMessages: Record<string, string> = {
@@ -131,10 +133,12 @@ export function CompletionPageClient({
       setCountdown({
         days: Math.floor(diff / (1000 * 60 * 60 * 24)),
         hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((diff % (1000 * 60)) / 1000),
       })
     }
     updateCountdown()
-    const interval = setInterval(updateCountdown, 60000)
+    const interval = setInterval(updateCountdown, 1000)
     return () => clearInterval(interval)
   }, [])
 
@@ -220,11 +224,27 @@ export function CompletionPageClient({
             <div className="text-center space-y-4 p-8 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200/50 dark:border-purple-800/50">
               <TreeDeciduous className="w-10 h-10 mx-auto text-purple-500" />
               <h2 className="text-xl font-semibold">You&apos;re in The Grove</h2>
-              <p className="text-muted-foreground">
-                Your Q1 check-in opens in{' '}
-                <span className="font-semibold text-foreground">{countdown.days} days</span>,{' '}
-                <span className="font-semibold text-foreground">{countdown.hours} hours</span>
+              <p className="text-muted-foreground mb-4">
+                Your Q1 check-in opens in:
               </p>
+              <div className="flex justify-center gap-3 font-mono text-lg">
+                <div className="bg-background/50 rounded-lg px-3 py-2">
+                  <span className="font-bold text-foreground">{countdown.days}</span>
+                  <span className="text-xs text-muted-foreground ml-1">d</span>
+                </div>
+                <div className="bg-background/50 rounded-lg px-3 py-2">
+                  <span className="font-bold text-foreground">{countdown.hours.toString().padStart(2, '0')}</span>
+                  <span className="text-xs text-muted-foreground ml-1">h</span>
+                </div>
+                <div className="bg-background/50 rounded-lg px-3 py-2">
+                  <span className="font-bold text-foreground">{countdown.minutes.toString().padStart(2, '0')}</span>
+                  <span className="text-xs text-muted-foreground ml-1">m</span>
+                </div>
+                <div className="bg-background/50 rounded-lg px-3 py-2">
+                  <span className="font-bold text-foreground">{countdown.seconds.toString().padStart(2, '0')}</span>
+                  <span className="text-xs text-muted-foreground ml-1">s</span>
+                </div>
+              </div>
             </div>
           ) : (
             <ShineBorder
@@ -234,16 +254,45 @@ export function CompletionPageClient({
               className="rounded-xl"
             >
               <div className="space-y-6 p-8 bg-card rounded-xl">
-                <div className="text-center space-y-3">
+                <div className="text-center space-y-4">
                   <TreeDeciduous className="w-10 h-10 mx-auto text-purple-500" />
                   <h2 className="text-xl font-semibold">Continue with The Grove</h2>
                   <p className="text-muted-foreground text-sm leading-relaxed">
-                    Quarterly check-ins that pull from your annual review to keep
-                    you aligned with what matters.
+                    The Annual Review will always be free. To deepen your life tending
+                    and support this project, join The Grove.
                   </p>
-                  <p className="text-sm font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    Your Q1 check-in opens in {countdown.days} days, {countdown.hours} hours
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    The Grove is your curated collection of reflections and practices
+                    to facilitate thriving. Next up: a shorter, more targeted quarterly
+                    check-in that pulls from your annual review—keeping you focused and
+                    aligned with what matters most, even as life changes around you.
                   </p>
+                  <p className="text-sm font-medium text-foreground">
+                    The Grove will continue to grow with you. Sign up now to plant your seeds.
+                  </p>
+                </div>
+
+                {/* Countdown */}
+                <div className="text-center space-y-2">
+                  <p className="text-xs text-muted-foreground">Q1 check-in opens in:</p>
+                  <div className="flex justify-center gap-2 font-mono text-sm">
+                    <div className="bg-muted rounded px-2 py-1">
+                      <span className="font-bold">{countdown.days}</span>
+                      <span className="text-xs text-muted-foreground ml-1">d</span>
+                    </div>
+                    <div className="bg-muted rounded px-2 py-1">
+                      <span className="font-bold">{countdown.hours.toString().padStart(2, '0')}</span>
+                      <span className="text-xs text-muted-foreground ml-1">h</span>
+                    </div>
+                    <div className="bg-muted rounded px-2 py-1">
+                      <span className="font-bold">{countdown.minutes.toString().padStart(2, '0')}</span>
+                      <span className="text-xs text-muted-foreground ml-1">m</span>
+                    </div>
+                    <div className="bg-muted rounded px-2 py-1">
+                      <span className="font-bold">{countdown.seconds.toString().padStart(2, '0')}</span>
+                      <span className="text-xs text-muted-foreground ml-1">s</span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex gap-3">
