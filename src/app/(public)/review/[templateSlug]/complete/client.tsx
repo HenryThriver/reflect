@@ -358,20 +358,6 @@ export function CompletionPageClient({
           </div>
         </BlurFade>
 
-        {/* ========== SECTION 5: Footer ========== */}
-        <BlurFade delay={0.4}>
-          <p className="text-sm text-muted-foreground text-center">
-            Built with 💗 by{' '}
-            <a
-              href="https://www.linkedin.com/in/henryfinkelstein/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-foreground transition-colors"
-            >
-              Henry
-            </a>
-          </p>
-        </BlurFade>
       </div>
     </div>
   )
