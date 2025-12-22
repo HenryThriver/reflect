@@ -37,21 +37,16 @@ function getNextVaultOpenDate(): string {
   return `December ${nextOpenYear}`
 }
 
-function getNextCheckinDate(): Date {
+function getNextQ1CheckinDate(): Date {
   const now = new Date()
   const year = now.getFullYear()
-  // Q1: Mar 24, Q2: Jun 24, Q3: Sep 24, Q4: Dec 24
-  const checkinDates = [
-    new Date(year, 2, 24), // March 24
-    new Date(year, 5, 24), // June 24
-    new Date(year, 8, 24), // September 24
-    new Date(year, 11, 24), // December 24
-    new Date(year + 1, 2, 24), // Next year March 24
-  ]
-  for (const date of checkinDates) {
-    if (date > now) return date
+  // Q1 check-in is March 24
+  // If we're past March 24 this year, return next year's March 24
+  const thisYearQ1 = new Date(year, 2, 24) // March 24
+  if (thisYearQ1 > now) {
+    return thisYearQ1
   }
-  return new Date(year + 1, 2, 24)
+  return new Date(year + 1, 2, 24) // Next year March 24
 }
 
 // ============================================
@@ -127,7 +122,7 @@ export function CompletionPageClient({
 
   useEffect(() => {
     const updateCountdown = () => {
-      const target = getNextCheckinDate().getTime()
+      const target = getNextQ1CheckinDate().getTime()
       const now = Date.now()
       const diff = Math.max(0, target - now)
       setCountdown({
