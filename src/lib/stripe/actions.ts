@@ -52,10 +52,15 @@ export async function checkoutWithStripe(formData?: FormData): Promise<never> {
 
   const stripe = getStripe()
   const appUrl = getPublicEnv('NEXT_PUBLIC_APP_URL')
-  const priceId = process.env.STRIPE_PRICE_MONTHLY
+
+  // Support monthly or yearly pricing
+  const priceType = formData?.get('priceType') as string || 'monthly'
+  const priceId = priceType === 'yearly'
+    ? process.env.STRIPE_PRICE_YEARLY
+    : process.env.STRIPE_PRICE_MONTHLY
 
   if (!priceId) {
-    console.error('STRIPE_PRICE_MONTHLY not configured')
+    console.error(`Stripe price not configured for: ${priceType}`)
     redirect(`${cancelUrl}?error=config_error`)
   }
 
