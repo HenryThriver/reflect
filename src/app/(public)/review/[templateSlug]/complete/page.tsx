@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getTemplate } from '@/lib/templates'
 import { CompletionPageClient } from './client'
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://thrivinghenry.com'
+const baseUrl = 'https://reflect.thrivinghenry.com'
 
 export async function generateMetadata({
   params,
