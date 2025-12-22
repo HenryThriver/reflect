@@ -350,7 +350,7 @@ export function CompletionPageClient({
               </TwitterShareButton>
 
               <a
-                href={`https://www.linkedin.com/feed/?shareActive&mini=true&text=${encodeURIComponent(`${shareText}\n\n${shareUrl}`)}`}
+                href={`https://www.linkedin.com/feed/?shareActive=true&mini=true&text=${encodeURIComponent(`${shareText}\n\n${shareUrl}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors cursor-pointer"
