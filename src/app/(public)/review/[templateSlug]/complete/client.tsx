@@ -86,8 +86,11 @@ export function CompletionPageClient({
     : template.questions.length
 
   const year = new Date().getFullYear()
-  const shareUrl = `${process.env.NEXT_PUBLIC_URL}/review/${templateSlug}`
   const shareText = `I just completed my ${year} annual review. ${totalQuestions} questions. Absolutely worth it.`
+
+  // Build share URL on client side using window.location.origin
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  const shareUrl = `${baseUrl}/review/${templateSlug}`
 
   useEffect(() => {
     setIsClient(true)
@@ -348,7 +351,7 @@ export function CompletionPageClient({
                 </div>
               </TwitterShareButton>
 
-              <LinkedinShareButton url={shareUrl} title={shareText}>
+              <LinkedinShareButton url={shareUrl} summary={shareText}>
                 <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors cursor-pointer">
                   <Linkedin className="w-5 h-5" />
                   <span className="text-sm font-medium">Share on LinkedIn</span>
