@@ -52,7 +52,7 @@ export function validatePublicEnv(): void {
 }
 
 export function getServerEnv(key: ServerEnvVar): string {
-  const value = process.env[key]
+  const value = process.env[key]?.trim()
   if (!value) {
     throw new Error(`Missing required server environment variable: ${key}`)
   }
@@ -60,7 +60,7 @@ export function getServerEnv(key: ServerEnvVar): string {
 }
 
 export function getPublicEnv(key: PublicEnvVar): string {
-  const value = process.env[key]
+  const value = process.env[key]?.trim()
   if (!value) {
     throw new Error(`Missing required public environment variable: ${key}`)
   }

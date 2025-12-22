@@ -60,6 +60,13 @@ export async function checkoutWithStripe(formData?: FormData): Promise<never> {
   }
 
   try {
+    console.log('Creating checkout session with:', {
+      email: user.email,
+      priceId,
+      appUrl,
+      cancelUrl,
+    })
+
     const session = await stripe.checkout.sessions.create({
       customer_email: user.email,
       line_items: [{ price: priceId, quantity: 1 }],
@@ -75,10 +82,15 @@ export async function checkoutWithStripe(formData?: FormData): Promise<never> {
       redirect(`${cancelUrl}?error=checkout_failed`)
     }
 
+    console.log('Checkout session created, redirecting to:', session.url)
     redirect(session.url)
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    console.error('Failed to create checkout session:', message)
+    console.error('Failed to create checkout session:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      priceId,
+      appUrl,
+    })
     redirect(`${cancelUrl}?error=checkout_failed`)
   }
 }
