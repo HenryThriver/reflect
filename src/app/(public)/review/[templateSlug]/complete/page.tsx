@@ -111,6 +111,7 @@ export default function CompletionPage({
 
           {/* Upgrade CTA */}
           <form action={checkoutWithStripe}>
+            <input type="hidden" name="returnTo" value={`/review/${templateSlug}/complete`} />
             <Button type="submit" size="lg" className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
               <Vault className="w-5 h-5 mr-2" />
               Save to Vault — $5/month

@@ -6,25 +6,33 @@ import { getPublicEnv } from '@/lib/env'
 import { getStripe } from '@/lib/stripe/client'
 
 /**
- * Creates a Stripe Checkout session for the authenticated user.
- *
- * Redirects to:
- * - /login?redirectTo=/pricing&checkout=true if not authenticated
- * - /dashboard if already subscribed
- * - Stripe Checkout URL on success
- * - /pricing?error=... on failure
+ * Validates returnTo URL to prevent open redirect attacks.
+ * Only allows relative paths starting with /
  */
-export async function checkoutWithStripe(): Promise<never> {
+function validateReturnUrl(url: string | null): string {
+  if (!url || !url.startsWith('/') || url.startsWith('//')) {
+    return '/pricing'
+  }
+  return url
+}
+
+/**
+ * Creates a Stripe Checkout session for the authenticated user.
+ */
+export async function checkoutWithStripe(formData?: FormData): Promise<never> {
+  const returnTo = formData?.get('returnTo')
+  const cancelUrl = validateReturnUrl(typeof returnTo === 'string' ? returnTo : null)
+
   const supabase = await createClient()
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    redirect('/login?redirectTo=/pricing&checkout=true')
+    redirect(`/login?redirectTo=${encodeURIComponent(cancelUrl)}&checkout=true`)
   }
 
   if (!user.email) {
     console.error('User has no email address')
-    redirect('/pricing?error=no_email')
+    redirect(`${cancelUrl}?error=no_email`)
   }
 
   const { data: sub, error: subError } = await supabase
@@ -35,7 +43,7 @@ export async function checkoutWithStripe(): Promise<never> {
 
   if (subError) {
     console.error('Failed to check subscription status:', subError.message)
-    redirect('/pricing?error=database_error')
+    redirect(`${cancelUrl}?error=database_error`)
   }
 
   if (sub?.status === 'active') {
@@ -48,7 +56,7 @@ export async function checkoutWithStripe(): Promise<never> {
 
   if (!priceId) {
     console.error('STRIPE_PRICE_MONTHLY not configured')
-    redirect('/pricing?error=config_error')
+    redirect(`${cancelUrl}?error=config_error`)
   }
 
   try {
@@ -57,21 +65,21 @@ export async function checkoutWithStripe(): Promise<never> {
       line_items: [{ price: priceId, quantity: 1 }],
       mode: 'subscription',
       success_url: `${appUrl}/dashboard?subscription=success`,
-      cancel_url: `${appUrl}/pricing`,
+      cancel_url: `${appUrl}${cancelUrl}`,
       metadata: { user_id: user.id },
       subscription_data: { metadata: { user_id: user.id } },
     })
 
     if (!session.url) {
       console.error('Stripe session created without URL')
-      redirect('/pricing?error=checkout_failed')
+      redirect(`${cancelUrl}?error=checkout_failed`)
     }
 
     redirect(session.url)
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     console.error('Failed to create checkout session:', message)
-    redirect('/pricing?error=checkout_failed')
+    redirect(`${cancelUrl}?error=checkout_failed`)
   }
 }
 
