@@ -263,7 +263,7 @@ export function CompletionPageClient({
                   </p>
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     The Grove is your curated collection of reflections and practices
-                    to facilitate thriving. Next up: a shorter, more targeted quarterly
+                    to facilitate Thriving. Next up: a shorter, more targeted quarterly
                     check-in that pulls from your annual review—keeping you focused and
                     aligned with what matters most, even as life changes around you.
                   </p>
