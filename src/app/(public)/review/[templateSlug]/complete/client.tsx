@@ -338,7 +338,7 @@ export function CompletionPageClient({
         <BlurFade delay={0.35}>
           <div className="text-center space-y-4">
             <p className="text-sm font-medium text-muted-foreground">
-              Be proud of your review—let others know!
+              Be proud of your review & let others know!
             </p>
             <div className="flex justify-center gap-4">
               <TwitterShareButton url={shareUrl} title={shareText}>
@@ -356,6 +356,21 @@ export function CompletionPageClient({
               </LinkedinShareButton>
             </div>
           </div>
+        </BlurFade>
+
+        {/* ========== SECTION 5: Footer ========== */}
+        <BlurFade delay={0.4}>
+          <p className="text-sm text-muted-foreground text-center">
+            Built with 💗 by{' '}
+            <a
+              href="https://www.linkedin.com/in/henryfinkelstein/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-foreground transition-colors"
+            >
+              Henry
+            </a>
+          </p>
         </BlurFade>
       </div>
     </div>
