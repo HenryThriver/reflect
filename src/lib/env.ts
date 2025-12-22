@@ -5,11 +5,13 @@ const requiredServerEnvVars = [
   'SUPABASE_SERVICE_ROLE_KEY',
   'STRIPE_SECRET_KEY',
   'STRIPE_WEBHOOK_SECRET',
+  'STRIPE_PRICE_MONTHLY',
 ] as const
 
 const requiredPublicEnvVars = [
   'NEXT_PUBLIC_SUPABASE_URL',
   'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
+  'NEXT_PUBLIC_APP_URL',
 ] as const
 
 type ServerEnvVar = (typeof requiredServerEnvVars)[number]
@@ -50,7 +52,7 @@ export function validatePublicEnv(): void {
 }
 
 export function getServerEnv(key: ServerEnvVar): string {
-  const value = process.env[key]
+  const value = process.env[key]?.trim()
   if (!value) {
     throw new Error(`Missing required server environment variable: ${key}`)
   }
@@ -58,7 +60,7 @@ export function getServerEnv(key: ServerEnvVar): string {
 }
 
 export function getPublicEnv(key: PublicEnvVar): string {
-  const value = process.env[key]
+  const value = process.env[key]?.trim()
   if (!value) {
     throw new Error(`Missing required public environment variable: ${key}`)
   }

@@ -1,6 +1,7 @@
 'use client'
 
 import { use, useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { getTemplate } from '@/lib/templates'
 import { getGuestReview, clearGuestReview } from '@/lib/guest-storage'
@@ -9,7 +10,8 @@ import { VALUE_FOREST_QUESTION_COUNT } from '@/lib/value-trees/constants'
 import { Button } from '@/components/ui/button'
 import { LoadingState } from '@/components/ui/loading-state'
 import { DividerWithText } from '@/components/ui/divider-with-text'
-import { Download, Lock, Check, ArrowLeft, Sparkles } from 'lucide-react'
+import { Download, Vault, Check, ArrowLeft, Cloud, Globe, Sparkles, History, AlertCircle } from 'lucide-react'
+import { checkoutWithStripe } from '@/lib/stripe/actions'
 
 export default function CompletionPage({
   params,
@@ -17,10 +19,19 @@ export default function CompletionPage({
   params: Promise<{ templateSlug: string }>
 }) {
   const { templateSlug } = use(params)
+  const searchParams = useSearchParams()
   const template = getTemplate(templateSlug)
   const [guestReview, setGuestReview] = useState<ReturnType<typeof getGuestReview>>(null)
   const [isClient, setIsClient] = useState(false)
   const [isDownloaded, setIsDownloaded] = useState(false)
+
+  const error = searchParams.get('error')
+  const errorMessages: Record<string, string> = {
+    checkout_failed: 'Unable to start checkout. Please try again.',
+    no_email: 'Your account needs an email address to subscribe.',
+    config_error: 'Service temporarily unavailable. Please try again later.',
+    database_error: 'Something went wrong. Please try again.',
+  }
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional SSR hydration pattern
@@ -108,20 +119,43 @@ export default function CompletionPage({
 
           <DividerWithText className="my-4">or</DividerWithText>
 
-          {/* Upgrade CTA */}
-          <Button asChild size="lg" className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-            <Link href="/pricing">
-              <Lock className="w-5 h-5 mr-2" />
-              Save to Vault - $5/mo
-            </Link>
-          </Button>
+          {/* Error message */}
+          {error && errorMessages[error] && (
+            <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg text-sm">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{errorMessages[error]}</span>
+            </div>
+          )}
 
-          <div className="text-sm text-muted-foreground space-y-2">
-            <p className="flex items-center justify-center gap-1">
-              <Sparkles className="w-4 h-4" />
-              Lock your review for a year, then unlock it with a celebration
-            </p>
-            <p>Save progress • Resume anytime • Multi-year history</p>
+          {/* Upgrade CTA */}
+          <form action={checkoutWithStripe}>
+            <input type="hidden" name="returnTo" value={`/review/${templateSlug}/complete`} />
+            <Button type="submit" size="lg" className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+              <Vault className="w-5 h-5 mr-2" />
+              Save to Vault — $5/month
+            </Button>
+          </form>
+
+          <div className="text-sm text-muted-foreground space-y-3 mt-4">
+            <p className="text-center">Store your reflections securely in the cloud.</p>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <p className="flex items-center gap-1">
+                <Cloud className="w-3 h-3" />
+                Cloud backup
+              </p>
+              <p className="flex items-center gap-1">
+                <Globe className="w-3 h-3" />
+                Access anywhere
+              </p>
+              <p className="flex items-center gap-1">
+                <Sparkles className="w-3 h-3" />
+                Time capsule
+              </p>
+              <p className="flex items-center gap-1">
+                <History className="w-3 h-3" />
+                Multi-year history
+              </p>
+            </div>
           </div>
         </div>
 
