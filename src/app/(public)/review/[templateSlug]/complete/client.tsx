@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import confetti from 'canvas-confetti'
-import { TwitterShareButton, LinkedinShareButton } from 'react-share'
+import { TwitterShareButton } from 'react-share'
 import { Button } from '@/components/ui/button'
 import { LoadingState } from '@/components/ui/loading-state'
 import { BlurFade } from '@/components/ui/blur-fade'
@@ -351,12 +351,15 @@ export function CompletionPageClient({
                 </div>
               </TwitterShareButton>
 
-              <LinkedinShareButton url={shareUrl} summary={shareText}>
-                <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors cursor-pointer">
-                  <Linkedin className="w-5 h-5" />
-                  <span className="text-sm font-medium">Share on LinkedIn</span>
-                </div>
-              </LinkedinShareButton>
+              <a
+                href={`https://www.linkedin.com/feed/?shareActive&mini=true&text=${encodeURIComponent(`${shareText}\n\n${shareUrl}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors cursor-pointer"
+              >
+                <Linkedin className="w-5 h-5" />
+                <span className="text-sm font-medium">Share on LinkedIn</span>
+              </a>
             </div>
           </div>
         </BlurFade>
