@@ -131,6 +131,7 @@ export function CompletionPageClient({
   const shareUrl = 'https://reflect.thrivinghenry.com'
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional SSR hydration pattern
     setIsClient(true)
     setGuestReview(getGuestReview(templateSlug))
 
