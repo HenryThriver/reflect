@@ -5,11 +5,13 @@ const requiredServerEnvVars = [
   'SUPABASE_SERVICE_ROLE_KEY',
   'STRIPE_SECRET_KEY',
   'STRIPE_WEBHOOK_SECRET',
+  'STRIPE_PRICE_MONTHLY',
 ] as const
 
 const requiredPublicEnvVars = [
   'NEXT_PUBLIC_SUPABASE_URL',
   'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
+  'NEXT_PUBLIC_APP_URL',
 ] as const
 
 type ServerEnvVar = (typeof requiredServerEnvVars)[number]
