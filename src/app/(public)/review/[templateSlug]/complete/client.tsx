@@ -125,8 +125,7 @@ export function CompletionPageClient({
     ? template.questions.length + VALUE_FOREST_QUESTION_COUNT
     : template.questions.length
 
-  const year = new Date().getFullYear()
-  const shareText = `I just completed my ${year} annual review. ${totalQuestions} questions. Absolutely worth it.`
+  const shareText = `I just completed my ${template.year} annual review. ${totalQuestions} questions. Absolutely worth it.`
 
   const shareUrl = 'https://reflect.thrivinghenry.com'
 
@@ -186,7 +185,7 @@ export function CompletionPageClient({
       guestReview.responses,
       new Date()
     )
-    downloadMarkdown(markdown, `${template.slug}-${year}.md`)
+    downloadMarkdown(markdown, `${template.slug}-${template.year}.md`)
   }
 
   if (!isClient) {

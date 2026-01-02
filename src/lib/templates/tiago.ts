@@ -3,6 +3,7 @@ import { ReviewTemplate } from './types'
 export const tiagoTemplate: ReviewTemplate = {
   slug: 'tiago-annual-review',
   name: "Tiago Forte's Annual Review",
+  year: 2025,
   creator: {
     name: 'Tiago Forte',
     title: 'Author of Building a Second Brain',

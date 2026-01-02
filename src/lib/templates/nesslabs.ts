@@ -3,6 +3,7 @@ import { ReviewTemplate } from './types'
 export const nesslabsTemplate: ReviewTemplate = {
   slug: 'nesslabs-annual-review',
   name: 'Ness Labs Annual Review',
+  year: 2025,
   creator: {
     name: 'Anne-Laure Le Cunff',
     title: 'Founder of Ness Labs',

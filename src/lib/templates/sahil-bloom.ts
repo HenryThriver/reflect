@@ -3,6 +3,7 @@ import { ReviewTemplate } from './types'
 export const sahilBloomTemplate: ReviewTemplate = {
   slug: 'sahil-bloom-annual-review',
   name: "Sahil Bloom's Personal Annual Review",
+  year: 2025,
   creator: {
     name: 'Sahil Bloom',
     title: 'Writer & Entrepreneur',
