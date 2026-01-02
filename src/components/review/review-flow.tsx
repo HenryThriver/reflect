@@ -145,9 +145,7 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
         if (dbReview) {
           setResponses(dbReview.responses)
           setCurrentIndex(dbReview.currentQuestionIndex)
-          if (dbReview.reviewMode) {
-            setReviewMode(dbReview.reviewMode)
-          }
+          setReviewMode(dbReview.reviewMode ?? 'digital')
 
           if (dbReview.currentQuestionIndex > 0 || (dbReview.responses && Object.keys(dbReview.responses).length > 0)) {
             setScreenState({ screen: 'questions' })
