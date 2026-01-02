@@ -144,10 +144,35 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
         )
         if (dbReview) {
           setResponses(dbReview.responses)
-          setCurrentIndex(dbReview.currentQuestionIndex)
           setReviewMode(dbReview.reviewMode ?? 'digital')
 
-          if (dbReview.currentQuestionIndex > 0 || (dbReview.responses && Object.keys(dbReview.responses).length > 0)) {
+          const isHenry = template.slug === 'henry-finkelstein'
+          const savedIndex = dbReview.currentQuestionIndex
+
+          // For Henry's template, check if user is actively in Value Forest
+          // The value_forest column stores the actual VF state - use its phase to determine screen
+          if (isHenry && dbReview.valueForestPhase) {
+            const activeVFPhases = ['selection', 'deep-dive', 'ranking', 'overview']
+            if (activeVFPhases.includes(dbReview.valueForestPhase)) {
+              // User is in Value Forest - restore to that screen
+              // Value Forest component will restore its own internal state from DB
+              setCurrentIndex(section5StartIndex)
+              setScreenState({ screen: 'value-forest' })
+              return
+            }
+          }
+
+          // For Henry's template with effective index past VF, convert back to raw index
+          if (isHenry && section5StartIndex > 0 && savedIndex >= section5StartIndex + VALUE_FOREST_QUESTION_COUNT) {
+            const rawIndex = savedIndex - VALUE_FOREST_QUESTION_COUNT
+            setCurrentIndex(Math.min(rawIndex, displayQuestions.length - 1))
+            setScreenState({ screen: 'questions' })
+            return
+          }
+
+          // Normal case: index maps directly to displayQuestions
+          setCurrentIndex(Math.min(savedIndex, displayQuestions.length - 1))
+          if (savedIndex > 0 || (dbReview.responses && Object.keys(dbReview.responses).length > 0)) {
             setScreenState({ screen: 'questions' })
           }
           return
@@ -174,7 +199,7 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
     }
 
     loadReview()
-  }, [template.slug, user?.id])
+  }, [template.slug, template.year, user?.id, section5StartIndex, displayQuestions.length])
 
   const handleStart = useCallback(() => {
     const existing = getGuestReview(template.slug)
