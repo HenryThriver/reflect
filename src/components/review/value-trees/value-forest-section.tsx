@@ -35,6 +35,8 @@ interface ValueForestSectionProps {
   user?: { id: string } | null
   /** Base question index where Value Forest starts (for database progress tracking) */
   baseQuestionIndex: number
+  /** The review year (from template) */
+  year: number
 }
 
 export function ValueForestSection({
@@ -44,6 +46,7 @@ export function ValueForestSection({
   onBack,
   user,
   baseQuestionIndex,
+  year,
 }: ValueForestSectionProps) {
   const [state, setState] = useState<ValueForestState>(() =>
     getValueForestState(templateSlug)
@@ -52,8 +55,6 @@ export function ValueForestSection({
   const [hasLoadedFromDb, setHasLoadedFromDb] = useState(false)
   // Track whether to skip the next save (prevents re-saving data we just loaded)
   const skipNextSaveRef = useRef(false)
-  // Memoize year to avoid creating new Date on every render
-  const year = useMemo(() => new Date().getFullYear(), [])
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional SSR hydration pattern

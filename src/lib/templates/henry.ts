@@ -3,6 +3,7 @@ import { ReviewTemplate } from './types'
 export const henryTemplate: ReviewTemplate = {
   slug: 'henry-finkelstein',
   name: "Henry's Annual Review",
+  year: 2025,
   creator: {
     name: 'Henry A Finkelstein',
     title: 'Builder & Thinker',

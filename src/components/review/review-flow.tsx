@@ -140,7 +140,7 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
         const dbReview = await loadAuthenticatedReview(
           user.id,
           template.slug,
-          new Date().getFullYear()
+          template.year
         )
         if (dbReview) {
           setResponses(dbReview.responses)
@@ -218,7 +218,7 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
         startAuthenticatedReview(
           user.id,
           template.slug,
-          new Date().getFullYear(),
+          template.year,
           mode
         )
       }
@@ -269,7 +269,7 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
         saveAuthenticatedReview(
           user.id,
           template.slug,
-          new Date().getFullYear(),
+          template.year,
           newResponses,
           currentIndex
         )
@@ -297,7 +297,7 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
         // Track progress for authenticated users (both modes)
         // Note: Value Forest will track its own internal progress
         if (user?.id) {
-          updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), effectiveIndex)
+          updateAuthenticatedProgress(user.id, template.slug, template.year, effectiveIndex)
         }
         return
       }
@@ -310,7 +310,7 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
         setQuestionIndex(template.slug, newIndex)
         // Track progress for authenticated users (both modes)
         if (user?.id) {
-          updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), effectiveIndex)
+          updateAuthenticatedProgress(user.id, template.slug, template.year, effectiveIndex)
         }
         return
       }
@@ -319,14 +319,14 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
       setQuestionIndex(template.slug, newIndex)
       // Track progress for authenticated users (both modes)
       if (user?.id) {
-        updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), effectiveIndex)
+        updateAuthenticatedProgress(user.id, template.slug, template.year, effectiveIndex)
       }
     } else {
       // Complete the review - track final question index before navigation
       const finalEffectiveIndex = getEffectiveIndex(displayQuestions.length - 1, section5StartIndex, isHenryTemplate)
       if (user?.id) {
         // Save final progress (total questions answered)
-        updateAuthenticatedProgress(user.id, template.slug, new Date().getFullYear(), finalEffectiveIndex + 1)
+        updateAuthenticatedProgress(user.id, template.slug, template.year, finalEffectiveIndex + 1)
         // Flush authenticated storage before navigation
         flushAuthenticatedStorage()
       }
@@ -450,6 +450,7 @@ export function ReviewFlow({ template, user }: ReviewFlowProps) {
           onBack={handleValueForestBack}
           user={user}
           baseQuestionIndex={section5StartIndex}
+          year={template.year}
         />
       )
 

@@ -1,6 +1,7 @@
 export interface ReviewTemplate {
   slug: string
   name: string
+  year: number
   creator: Creator
   intro: TemplateIntro
   questions: Question[]

@@ -3,6 +3,7 @@ import { ReviewTemplate } from './types'
 export const tkKaderTemplate: ReviewTemplate = {
   slug: 'tk-kader-life-planning',
   name: "TK Kader's 5-Step Life Planning Guide",
+  year: 2025,
   creator: {
     name: 'TK Kader',
     title: 'Founder of Unstoppable',

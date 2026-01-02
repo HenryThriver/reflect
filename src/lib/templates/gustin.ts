@@ -3,6 +3,7 @@ import { ReviewTemplate } from './types'
 export const gustinTemplate: ReviewTemplate = {
   slug: 'gustin-annual-review',
   name: "Dr. Anthony Gustin's Annual Review",
+  year: 2025,
   creator: {
     name: 'Dr. Anthony Gustin',
     title: 'Founder of Perfect Keto',
