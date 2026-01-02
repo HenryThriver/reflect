@@ -15,6 +15,7 @@ export type ReviewMode = 'handwriting' | 'digital'
 const FlowScreenSchema = z.enum(['intro', 'housekeeping', 'handwriting', 'centering', 'questions', 'value-forest', 'visualization'])
 const ReviewModeSchema = z.enum(['handwriting', 'digital'])
 
+// ValueForestState schema - validates required fields, merges with defaults on load
 const ValueForestStateSchema = z.object({
   phase: z.enum(['intro', 'selection', 'deep-dive', 'ranking', 'overview']),
   selectedTreeIds: z.array(z.string()),
@@ -39,7 +40,7 @@ const ValueForestStateSchema = z.object({
   })),
   ranking: z.array(z.string()),
   overviewResponses: z.record(z.string(), z.string()),
-}).partial() // Make all fields optional for partial state recovery
+})
 
 const GuestReviewSchema = z.object({
   templateSlug: z.string(),
@@ -533,4 +534,111 @@ export async function flushAuthenticatedStorage(): Promise<void> {
     )
     pendingAuthProgressData = null
   }
+
+  // Flush pending value forest writes
+  if (pendingAuthValueForestWrite) {
+    clearTimeout(pendingAuthValueForestWrite)
+    pendingAuthValueForestWrite = null
+  }
+  if (pendingAuthValueForestData) {
+    await _saveAuthenticatedValueForestNow(
+      pendingAuthValueForestData.userId,
+      pendingAuthValueForestData.templateSlug,
+      pendingAuthValueForestData.year,
+      pendingAuthValueForestData.valueForest
+    )
+    pendingAuthValueForestData = null
+  }
+}
+
+// =============================================================================
+// Authenticated Value Forest Storage
+// =============================================================================
+
+let pendingAuthValueForestWrite: ReturnType<typeof setTimeout> | null = null
+let pendingAuthValueForestData: {
+  userId: string
+  templateSlug: string
+  year: number
+  valueForest: ValueForestState
+} | null = null
+
+// Internal function that performs the actual database write
+async function _saveAuthenticatedValueForestNow(
+  userId: string,
+  templateSlug: string,
+  year: number,
+  valueForest: ValueForestState
+): Promise<DbOperationResult> {
+  const supabase = createClient()
+  const { error } = await supabase
+    .from('annual_reviews')
+    .update({ value_forest: valueForest })
+    .eq('user_id', userId)
+    .eq('template_slug', templateSlug)
+    .eq('year', year)
+
+  if (error) {
+    console.error('Failed to save Value Forest:', error)
+    dispatchAuthStorageError(error.message)
+    return { success: false, error: error.message }
+  }
+  return { success: true }
+}
+
+// Debounced save - use this for real-time updates
+export function saveAuthenticatedValueForest(
+  userId: string,
+  templateSlug: string,
+  year: number,
+  valueForest: ValueForestState
+): void {
+  // Store the latest data
+  pendingAuthValueForestData = { userId, templateSlug, year, valueForest }
+
+  // Clear any pending write
+  if (pendingAuthValueForestWrite) {
+    clearTimeout(pendingAuthValueForestWrite)
+  }
+
+  // Schedule debounced write
+  pendingAuthValueForestWrite = setTimeout(async () => {
+    if (pendingAuthValueForestData) {
+      await _saveAuthenticatedValueForestNow(
+        pendingAuthValueForestData.userId,
+        pendingAuthValueForestData.templateSlug,
+        pendingAuthValueForestData.year,
+        pendingAuthValueForestData.valueForest
+      )
+      pendingAuthValueForestData = null
+    }
+    pendingAuthValueForestWrite = null
+  }, AUTH_DEBOUNCE_MS)
+}
+
+// Load Value Forest from database
+export async function loadAuthenticatedValueForest(
+  userId: string,
+  templateSlug: string,
+  year: number
+): Promise<ValueForestState | null> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('annual_reviews')
+    .select('value_forest')
+    .eq('user_id', userId)
+    .eq('template_slug', templateSlug)
+    .eq('year', year)
+    .maybeSingle()
+
+  if (error || !data || !data.value_forest) return null
+
+  // Validate the structure matches ValueForestState
+  const result = ValueForestStateSchema.safeParse(data.value_forest)
+  if (!result.success) {
+    console.warn('Invalid Value Forest data from database:', result.error.issues)
+    return null
+  }
+
+  return result.data as ValueForestState
 }

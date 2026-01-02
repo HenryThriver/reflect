@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from 'react'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
 import { ForestIntro } from './forest-intro'
 import { TreeSelection } from './tree-selection'
@@ -14,7 +14,10 @@ import {
   getValueForestState,
   saveValueForestState,
   flushStorage,
+  flushAuthenticatedStorage,
   updateAuthenticatedProgress,
+  loadAuthenticatedValueForest,
+  saveAuthenticatedValueForest,
 } from '@/lib/guest-storage'
 import {
   DEFAULT_TREES,
@@ -46,18 +49,71 @@ export function ValueForestSection({
     getValueForestState(templateSlug)
   )
   const [isClient, setIsClient] = useState(false)
+  const [hasLoadedFromDb, setHasLoadedFromDb] = useState(false)
+  // Track whether to skip the next save (prevents re-saving data we just loaded)
+  const skipNextSaveRef = useRef(false)
+  // Memoize year to avoid creating new Date on every render
+  const year = useMemo(() => new Date().getFullYear(), [])
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional SSR hydration pattern
     setIsClient(true)
   }, [])
 
+  // Load from database for authenticated users (once on mount)
+  useEffect(() => {
+    if (!isClient || !user?.id || hasLoadedFromDb) return
+
+    const loadFromDb = async () => {
+      const dbState = await loadAuthenticatedValueForest(
+        user.id,
+        templateSlug,
+        year
+      )
+      if (dbState) {
+        // Database has data - use it and sync to localStorage
+        // Skip the next save since we're setting state from DB
+        skipNextSaveRef.current = true
+        setState(dbState)
+        saveValueForestState(templateSlug, dbState)
+      }
+      setHasLoadedFromDb(true)
+    }
+
+    loadFromDb()
+  }, [isClient, user?.id, templateSlug, year, hasLoadedFromDb])
+
   // Auto-save on state change
   useEffect(() => {
-    if (isClient) {
+    if (isClient && hasLoadedFromDb) {
+      // Skip save if this state change came from a DB load
+      if (skipNextSaveRef.current) {
+        skipNextSaveRef.current = false
+        return
+      }
+
+      // Always save to localStorage
       saveValueForestState(templateSlug, state)
+
+      // Also save to database for authenticated users
+      if (user?.id) {
+        saveAuthenticatedValueForest(
+          user.id,
+          templateSlug,
+          year,
+          state
+        )
+      }
     }
-  }, [state, templateSlug, isClient])
+  }, [state, templateSlug, year, isClient, user?.id, hasLoadedFromDb])
+
+  // Flush pending writes on unmount
+  useEffect(() => {
+    return () => {
+      flushStorage()
+      flushAuthenticatedStorage()
+    }
+  }, [])
 
   // Get all trees (default + custom)
   const allTrees = useMemo(() => {
@@ -116,11 +172,11 @@ export function ValueForestSection({
       updateAuthenticatedProgress(
         user.id,
         templateSlug,
-        new Date().getFullYear(),
+        year,
         effectiveQuestionIndex
       )
     }
-  }, [isClient, user?.id, templateSlug, effectiveQuestionIndex, state.phase])
+  }, [isClient, user?.id, templateSlug, year, effectiveQuestionIndex, state.phase])
 
   // Selection handlers
   const handleSelectionChange = useCallback((ids: string[]) => {
