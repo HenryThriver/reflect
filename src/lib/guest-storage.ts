@@ -405,11 +405,16 @@ export async function loadAuthenticatedReview(
   userId: string,
   templateSlug: string,
   year: number
-): Promise<{ responses: Record<string, string>; currentQuestionIndex: number; reviewMode?: ReviewMode } | null> {
+): Promise<{
+  responses: Record<string, string>;
+  currentQuestionIndex: number;
+  reviewMode?: ReviewMode;
+  valueForestPhase?: string | null;
+} | null> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('annual_reviews')
-    .select('responses, current_question_index, review_mode')
+    .select('responses, current_question_index, review_mode, value_forest')
     .eq('user_id', userId)
     .eq('template_slug', templateSlug)
     .eq('year', year)
@@ -417,10 +422,14 @@ export async function loadAuthenticatedReview(
 
   if (error || !data) return null
 
+  // Extract phase from value_forest JSONB if present
+  const valueForest = data.value_forest as { phase?: string } | null
+
   return {
     responses: (data.responses as Record<string, string>) || {},
     currentQuestionIndex: data.current_question_index || 0,
-    reviewMode: (data.review_mode as ReviewMode) || 'digital'
+    reviewMode: (data.review_mode as ReviewMode) || 'digital',
+    valueForestPhase: valueForest?.phase ?? null
   }
 }
 
